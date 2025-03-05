@@ -32,14 +32,14 @@ namespace Booking_API.Controllers
 
         [HttpGet("AdminOnlyPage")]
         [Authorize(Roles = "Admin")]
-        public async Task<ServiceResponse<string>> AdminOnlyPage()
+        public async Task<ServiceResponse<string>> AdminOnlyPageTestCase()
         {
             return default;
         }
 
         [HttpGet("UserOnlyPage")]
         [Authorize(Roles = "User")]
-        public async Task<ServiceResponse<string>> UserOnlyPage()
+        public async Task<ServiceResponse<string>> UserOnlyPageTestCase()
         {
             return default;
         }

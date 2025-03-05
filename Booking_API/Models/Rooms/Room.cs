@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Booking_API.Models.Rooms
@@ -9,7 +10,8 @@ namespace Booking_API.Models.Rooms
         public int Id { get; set; } // Primary Key
 
         public string Name { get; set; } = string.Empty;
-
+      
+        [ForeignKey("Hotel")]
         public int HotelId { get; set; } // Foreign Key for Hotel
         public Hotel Hotel { get; set; } // Navigation Property
 
@@ -19,7 +21,9 @@ namespace Booking_API.Models.Rooms
 
         public int MaximumGuests { get; set; }
 
-        public int RoomTypeId { get; set; } // Foreign Key for Room Type
+        [ForeignKey("RoomType")] // Explicitly define the foreign key
+        public int RoomTypeId { get; set; }
+        public RoomType RoomType { get; set; }
 
         public List<BookedDate> BookedDates { get; set; } = new List<BookedDate>(); // List of Booked Dates
 

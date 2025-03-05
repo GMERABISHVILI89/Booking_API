@@ -39,7 +39,7 @@ namespace Booking_API.Services
             }
         }
 
-        public Task<ServiceResponse<Hotel>> GetHotel(HotelsDTO hotelsDTO)
+        public Task<ServiceResponse<Hotel>> GetHotel(int hotelid)
         {
             throw new NotImplementedException();
         }

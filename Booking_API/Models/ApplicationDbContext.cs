@@ -14,6 +14,7 @@ namespace Booking_API.Models
         public DbSet<Room> Rooms { get; set; }
         public DbSet<BookedDate> BookedDates { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<RoomType> RoomTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

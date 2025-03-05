@@ -7,7 +7,7 @@ namespace Booking_API.Interfaces
     public interface IHotelService
     {
         Task<ServiceResponse<List<Hotel>>> GetAll();
-        Task<ServiceResponse<Hotel>> GetHotel(HotelsDTO hotelsDTO);
+        Task<ServiceResponse<Hotel>> GetHotel(int hotelId);
 
     }
 }

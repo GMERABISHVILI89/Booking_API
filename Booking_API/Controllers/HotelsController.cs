@@ -31,5 +31,21 @@ namespace Booking_API.Controllers
             }
         }
 
+        [HttpGet("GetHotelById")]
+        public async Task<ActionResult<ServiceResponse<List<Hotel>>>> GetHotelById(int hoteId) //Or [FromBody] if post
+        {
+            var response = await _hotelService.GetHotel(hoteId);
+
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest(response); 
+            }
+        }
+
+
     }
 }

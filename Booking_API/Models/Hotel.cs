@@ -1,4 +1,5 @@
 ﻿using Booking_API.Models.Rooms;
+using System.Text.Json.Serialization;
 
 namespace Booking_API.Models
 {
@@ -14,6 +15,7 @@ namespace Booking_API.Models
 
         public string FeaturedImage { get; set; } = string.Empty; // Store image URL or path
 
+  
         public List<Room> Rooms { get; set; } = new List<Room>(); // Navigation property
     }
 }

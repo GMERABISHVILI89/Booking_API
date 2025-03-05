@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Booking_API.Models.Rooms
@@ -13,6 +14,8 @@ namespace Booking_API.Models.Rooms
       
         [ForeignKey("Hotel")]
         public int HotelId { get; set; } // Foreign Key for Hotel
+
+
         public Hotel Hotel { get; set; } // Navigation Property
 
         public decimal PricePerNight { get; set; }

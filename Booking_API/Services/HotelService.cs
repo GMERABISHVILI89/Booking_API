@@ -39,9 +39,40 @@ namespace Booking_API.Services
             }
         }
 
-        public Task<ServiceResponse<Hotel>> GetHotel(int hotelid)
+        public async Task<ServiceResponse<Hotel>> GetHotel(int hotelid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var hotel = await _context.Hotels
+                                                             .Include(h => h.Rooms) // Include Rooms
+                                                            .ThenInclude(r => r.Images) // Include Images inside Rooms
+                                                            .Include(h => h.Rooms) // Include Rooms again
+                                                            .ThenInclude(r => r.BookedDates) // Include BookedDates inside Rooms
+                                                            .FirstOrDefaultAsync(h => h.Id == hotelid);
+                if (hotel == null) {
+                    return new ServiceResponse<Hotel>
+                    {
+                        Data = null!,
+                        Success = false,
+                        Message = "Hotel Not Found !"
+                    };
+                }
+                return new ServiceResponse<Hotel> {
+                    Data = hotel!,
+                    Success = true,
+                    Message = "Success"
+                };
+            }
+            catch (Exception exe)
+            {
+
+                return new ServiceResponse<Hotel>
+                {
+                    Data = null,
+                    Success = false,
+                    Message = $"An error occurred: {exe.Message}"
+                };
+            }
         }
     }
 }

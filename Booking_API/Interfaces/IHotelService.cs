@@ -8,6 +8,9 @@ namespace Booking_API.Interfaces
     {
         Task<ServiceResponse<List<Hotel>>> GetAll();
         Task<ServiceResponse<Hotel>> GetHotel(int hotelId);
+        Task<ServiceResponse<Hotel>> AddHotel(HotelsDTO hotel);
+        Task<ServiceResponse<bool>> DeleteHotel(int hotelId);
+        Task<ServiceResponse<Hotel>> UpdateHotel(int hotelId, HotelsDTO hotelDTO);
 
     }
 }

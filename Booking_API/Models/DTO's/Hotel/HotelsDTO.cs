@@ -8,7 +8,6 @@ namespace Booking_API.Models.DTO_s.Hotel
         public string address { get; set; } = string.Empty;
         public string city { get; set; } = string.Empty;
         public string featuredImage { get; set; } = string.Empty;
-        public List<Room> rooms { get; set; }
 
     }
 }

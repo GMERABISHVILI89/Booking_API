@@ -16,25 +16,29 @@ namespace Booking_API.Controllers
             _hotelService = hotelService;
         }
 
-        [HttpGet("GetAll")] 
-        public async Task<ActionResult<ServiceResponse<List<Hotel>>>> GetAll() //Or [FromBody] if post
+
+
+        // Add Hotel
+        [HttpPost("AddHotel")]
+        public async Task<IActionResult> AddHotel([FromBody] HotelsDTO hotelDto)
         {
-            var response = await _hotelService.GetAll();
+            var response = await _hotelService.AddHotel(hotelDto);
 
             if (response.Success)
             {
-                return Ok(response);
+                return Ok(response);  
             }
             else
             {
-                return BadRequest(response); // Or StatusCode(500, response) for internal server errors
+                return BadRequest(response); 
             }
         }
 
-        [HttpGet("GetHotelById")]
-        public async Task<ActionResult<ServiceResponse<List<Hotel>>>> GetHotelById(int hoteId) //Or [FromBody] if post
+
+        [HttpGet("GetAllHotels")] 
+        public async Task<ActionResult<ServiceResponse<List<Hotel>>>> GetAll() 
         {
-            var response = await _hotelService.GetHotel(hoteId);
+            var response = await _hotelService.GetAll();
 
             if (response.Success)
             {
@@ -46,6 +50,44 @@ namespace Booking_API.Controllers
             }
         }
 
+        [HttpGet("{hotelId}")]
+        public async Task<ActionResult<ServiceResponse<List<Hotel>>>> GetHotelById(int hotelId) 
+        {
+            var response = await _hotelService.GetHotel(hotelId);
 
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest(response); 
+            }
+        }
+
+        [HttpDelete("{hotelId}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteHotel(int hotelId)  // Return bool here
+        {
+            var response = await _hotelService.DeleteHotel(hotelId);
+            if (!response.Data)
+            {
+                return NotFound(response); 
+            }
+            return Ok(response); 
+        }
+
+
+        [HttpPut("update/{hotelId}")]
+        public async Task<ActionResult<ServiceResponse<Hotel>>> UpdateHotel(int hotelId, HotelsDTO hotelDTO)
+        {
+            var response = await _hotelService.UpdateHotel(hotelId, hotelDTO);
+
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
     }
 }

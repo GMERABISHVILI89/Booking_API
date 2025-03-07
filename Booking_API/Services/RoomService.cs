@@ -168,7 +168,7 @@ namespace Booking_API.Services
 
 
 
-        public async Task<ServiceResponse<RoomDTO>> UpdateRoom(int roomId, CreateRoomDTO roomDTO)
+        public async Task<ServiceResponse<RoomDTO>> UpdateRoom(int roomId, UpdateRoomDTO roomDTO)
         {
             var response = new ServiceResponse<RoomDTO>();
             try
@@ -190,6 +190,18 @@ namespace Booking_API.Services
                 room.PricePerNight = roomDTO.PricePerNight;
                 room.MaximumGuests = roomDTO.MaximumGuests;
                 room.RoomTypeId = roomDTO.RoomTypeId;
+
+                if (roomDTO.Images != null)
+                {
+                    // Remove old images (optional)
+                    room.Images.Clear();
+
+                    // Convert List<string> to List<RoomImage>
+                    foreach (var imgUrl in roomDTO.Images)
+                    {
+                        room.Images = _mapper.Map<List<Image>>(roomDTO.Images);
+                    }
+                }
 
                 await _context.SaveChangesAsync();
 

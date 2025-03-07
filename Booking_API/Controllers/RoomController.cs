@@ -58,7 +58,7 @@ namespace Booking_API.Controllers
         // Update an existing room
         [HttpPut("{roomId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ServiceResponse<Room>>> UpdateRoom(int roomId, CreateRoomDTO roomDTO)
+        public async Task<ActionResult<ServiceResponse<Room>>> UpdateRoom(int roomId, UpdateRoomDTO roomDTO)
         {
             var response = await _roomService.UpdateRoom(roomId, roomDTO);
             if (response.Success)

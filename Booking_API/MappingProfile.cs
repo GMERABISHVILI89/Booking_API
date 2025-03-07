@@ -11,6 +11,8 @@ namespace Booking_API
     {
         public MappingProfile()
         {
+            CreateMap<ImageDTO, Image>();
+
             CreateMap<Room, RoomDTO>()
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.Select(i => i.Source).ToList()));
 

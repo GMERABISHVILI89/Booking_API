@@ -33,8 +33,10 @@ namespace Booking_API.Services
 
                 // Get the logged-in user's customerId (assuming the user is authenticated via JWT)
                 var loggedInUserId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var loggedInUserName = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;
 
-                if (loggedInUserId == null || loggedInUserId != bookingDto.CustomerId.ToString())
+
+                if (loggedInUserId == null)
                 {
                     response.Success = false;
                     response.Message = "You are not authorized to make this booking.";
@@ -72,10 +74,8 @@ namespace Booking_API.Services
                     CheckInDate = bookingDto.CheckInDate,
                     CheckOutDate = bookingDto.CheckOutDate,
                     TotalPrice = bookingDto.TotalPrice,
-                    IsConfirmed = bookingDto.IsConfirmed,
-                    CustomerName = bookingDto.CustomerName,
-                    //CustomerId = bookingDto.CustomerId,
-            
+                    CustomerName = loggedInUserName!,
+                    CustomerId = loggedInUserId,
                     CustomerPhone = bookingDto.CustomerPhone
                 };
 

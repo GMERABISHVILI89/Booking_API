@@ -40,14 +40,15 @@ builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
 // Swagger/OpenAPI Configuration with JWT Authentication
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API Name", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hotel Booking", Version = "v1" });
 
     // Add JWT Authentication to Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -75,6 +76,9 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+
+// Connection
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
  options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -86,7 +90,7 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 
 
-
+//JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

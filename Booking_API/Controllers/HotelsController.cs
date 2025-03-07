@@ -3,11 +3,13 @@ using Booking_API.Models.DTO_s.Hotel;
 using Booking_API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Booking_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class HotelsController : ControllerBase
     {
         private readonly IHotelService _hotelService;
@@ -20,6 +22,7 @@ namespace Booking_API.Controllers
 
         // Add Hotel
         [HttpPost("AddHotel")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddHotel([FromBody] HotelsDTO hotelDto)
         {
             var response = await _hotelService.AddHotel(hotelDto);
@@ -66,6 +69,7 @@ namespace Booking_API.Controllers
         }
 
         [HttpDelete("{hotelId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResponse<bool>>> DeleteHotel(int hotelId)  // Return bool here
         {
             var response = await _hotelService.DeleteHotel(hotelId);
@@ -78,6 +82,7 @@ namespace Booking_API.Controllers
 
 
         [HttpPut("update/{hotelId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResponse<Hotel>>> UpdateHotel(int hotelId, HotelsDTO hotelDTO)
         {
             var response = await _hotelService.UpdateHotel(hotelId, hotelDTO);

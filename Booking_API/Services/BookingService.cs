@@ -5,6 +5,7 @@ using Booking_API.Models;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using Booking_API.Models.DTO_s.Booking;
+using System.Security.Claims;
 using Booking_API.Models.Entities;
 
 namespace Booking_API.Services
@@ -13,12 +14,14 @@ namespace Booking_API.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public BookingService(ApplicationDbContext context, IMapper mapper)
+        public BookingService(ApplicationDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
-        }
+            _httpContextAccessor = httpContextAccessor;
+        }   
 
         public async Task<ServiceResponse<BookingDTO>> CreateBooking(BookingDTO bookingDto)
         {
@@ -29,14 +32,14 @@ namespace Booking_API.Services
 
 
                 // Get the logged-in user's customerId (assuming the user is authenticated via JWT)
-                //var loggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var loggedInUserId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                //if (loggedInUserId == null || loggedInUserId != bookingDto.CustomerId.ToString())
-                //{
-                //    response.Success = false;
-                //    response.Message = "You are not authorized to make this booking.";
-                //    return response;
-                //}
+                if (loggedInUserId == null || loggedInUserId != bookingDto.CustomerId.ToString())
+                {
+                    response.Success = false;
+                    response.Message = "You are not authorized to make this booking.";
+                    return response;
+                }
 
 
                 // Check if the room is available for the requested dates
@@ -71,7 +74,8 @@ namespace Booking_API.Services
                     TotalPrice = bookingDto.TotalPrice,
                     IsConfirmed = bookingDto.IsConfirmed,
                     CustomerName = bookingDto.CustomerName,
-                    CustomerId = bookingDto.CustomerId,
+                    //CustomerId = bookingDto.CustomerId,
+            
                     CustomerPhone = bookingDto.CustomerPhone
                 };
 

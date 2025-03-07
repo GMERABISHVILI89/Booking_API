@@ -5,11 +5,13 @@ using Booking_API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Booking_API.Models.DTO_s.Room;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Booking_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
@@ -43,6 +45,7 @@ namespace Booking_API.Controllers
 
         // Add a new room to a hotel
         [HttpPost("AddRoom")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResponse<Room>>> AddRoom(CreateRoomDTO roomDTO)
         {
             var response = await _roomService.AddRoom(roomDTO);
@@ -54,6 +57,7 @@ namespace Booking_API.Controllers
 
         // Update an existing room
         [HttpPut("{roomId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResponse<Room>>> UpdateRoom(int roomId, CreateRoomDTO roomDTO)
         {
             var response = await _roomService.UpdateRoom(roomId, roomDTO);
@@ -65,6 +69,7 @@ namespace Booking_API.Controllers
 
         // Delete a room
         [HttpDelete("{roomId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResponse<bool>>> DeleteRoom(int roomId)
         {
             var response = await _roomService.DeleteRoom(roomId);
@@ -89,6 +94,7 @@ namespace Booking_API.Controllers
         }
 
 
+        // es gadasatania filter shi ..
         [HttpPost("filter")]
         public async Task<ActionResult<ServiceResponse<List<CreateRoomDTO>>>> FilterRooms([FromBody] FilterDTO filter)
         {

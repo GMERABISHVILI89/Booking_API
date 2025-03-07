@@ -109,6 +109,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+// Add this line to make IHttpContextAccessor available
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 

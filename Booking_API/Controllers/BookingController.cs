@@ -5,11 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Booking_API.Services;
 using Booking_API.Interfaces;
 using Booking_API.Models.DTO_s.Booking;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Booking_API.Controllers
 {
+ 
     [Route("api/[controller]")]
     [ApiController]
+
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
@@ -21,6 +24,7 @@ namespace Booking_API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<ServiceResponse<BookingDTO>>> CreateBooking(BookingDTO bookingDto)
         {
             var response = await _bookingService.CreateBooking(bookingDto);
@@ -36,20 +40,20 @@ namespace Booking_API.Controllers
 
 
         // GET: api/Booking
-        [HttpGet]
-        public async Task<ActionResult<ServiceResponse<List<BookingDTO>>>> GetBookings()
-        {
-            var response = await _bookingService.GetBookings();
+        //[HttpGet]
+        //public async Task<ActionResult<ServiceResponse<List<BookingDTO>>>> GetBookings()
+        //{
+        //    var response = await _bookingService.GetBookings();
 
-            if (response.Success)
-            {
-                return Ok(response);
-            }
+        //    if (response.Success)
+        //    {
+        //        return Ok(response);
+        //    }
 
-            return NotFound(response);
-        }
+        //    return NotFound(response);
+        //}
 
-        // GET: api/Booking/{id}
+        // GET: api/Booking/{id}   need to change to get particular user booking's ! 
         [HttpGet("{bookingId}")]
         public async Task<ActionResult<ServiceResponse<BookingDTO>>> GetBookingById(int bookingId)
         {
@@ -63,22 +67,23 @@ namespace Booking_API.Controllers
             return NotFound(response);
         }
 
-        // PUT: api/Booking/{id}
-        [HttpPut("{bookingId}")]
-        public async Task<ActionResult<ServiceResponse<BookingDTO>>> UpdateBooking(int bookingId, BookingDTO bookingDto)
-        {
-            var response = await _bookingService.UpdateBooking(bookingId, bookingDto);
+        // PUT: api/Booking/{id}  აქ არ გვინდა განახლება , წაიშალოს და ახალი დაემატოს თუ რამე
+        //[HttpPut("{bookingId}")]
+        //public async Task<ActionResult<ServiceResponse<BookingDTO>>> UpdateBooking(int bookingId, BookingDTO bookingDto)
+        //{
+        //    var response = await _bookingService.UpdateBooking(bookingId, bookingDto);
 
-            if (response.Success)
-            {
-                return Ok(response);
-            }
+        //    if (response.Success)
+        //    {
+        //        return Ok(response);
+        //    }
 
-            return NotFound(response);
-        }
+        //    return NotFound(response);
+        //}
 
         // DELETE: api/Booking/{id}
         [HttpDelete("{bookingId}")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<ServiceResponse<bool>>> DeleteBooking(int bookingId)
         {
             var response = await _bookingService.DeleteBooking(bookingId);

@@ -7,9 +7,8 @@ namespace Booking_API.Interfaces
     public interface IBookingService
     {
         Task<ServiceResponse<BookingDTO>> CreateBooking(BookingDTO bookingDto);
-        Task<ServiceResponse<List<BookingDTO>>> GetBookings();
+        //Task<ServiceResponse<List<BookingDTO>>> GetBookings();
         Task<ServiceResponse<BookingDTO>> GetBookingById(int bookingId);
-        Task<ServiceResponse<BookingDTO>> UpdateBooking(int bookingId, BookingDTO bookingDto);
         Task<ServiceResponse<bool>> DeleteBooking(int bookingId);
     }
 }

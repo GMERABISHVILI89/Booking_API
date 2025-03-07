@@ -47,6 +47,7 @@ namespace Booking_API.Services
             await _context.SaveChangesAsync();
 
             response.Data = user.Id;
+            response.Message = "User Registered Successfully !";
             return response;
         }
         public async Task<ServiceResponse<string>> Login(UserLoginDTO loginDTO)
@@ -130,8 +131,8 @@ namespace Booking_API.Services
             {
                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, "Admin"),
-                new Claim(ClaimTypes.Role, "User")
+                new Claim(ClaimTypes.Role, user.Role),
+              
             };
 
             SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Secret").Value!));

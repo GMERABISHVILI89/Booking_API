@@ -4,6 +4,7 @@ using Booking_API.Models.Rooms;
 using Booking_API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Booking_API.Models.DTO_s.Room;
 
 namespace Booking_API.Controllers
 {
@@ -41,10 +42,10 @@ namespace Booking_API.Controllers
         }
 
         // Add a new room to a hotel
-        [HttpPost("hotel/{hotelId}")]
-        public async Task<ActionResult<ServiceResponse<Room>>> AddRoom(int hotelId, RoomDTO roomDTO)
+        [HttpPost("AddRoom")]
+        public async Task<ActionResult<ServiceResponse<Room>>> AddRoom(CreateRoomDTO roomDTO)
         {
-            var response = await _roomService.AddRoom(hotelId, roomDTO);
+            var response = await _roomService.AddRoom(roomDTO);
             if (response.Success)
                 return CreatedAtAction(nameof(GetRoomById), new { roomId = response.Data.Id }, response);
             else
@@ -53,7 +54,7 @@ namespace Booking_API.Controllers
 
         // Update an existing room
         [HttpPut("{roomId}")]
-        public async Task<ActionResult<ServiceResponse<Room>>> UpdateRoom(int roomId, RoomDTO roomDTO)
+        public async Task<ActionResult<ServiceResponse<Room>>> UpdateRoom(int roomId, CreateRoomDTO roomDTO)
         {
             var response = await _roomService.UpdateRoom(roomId, roomDTO);
             if (response.Success)
@@ -72,6 +73,33 @@ namespace Booking_API.Controllers
             else
                 return NotFound(response);
         }
+
+
+ 
+
+        [HttpGet("get-all")]
+        public async Task<ActionResult<ServiceResponse<List<CreateRoomDTO>>>> GetAllRooms()
+        {
+            var response = await _roomService.GetAllRooms();
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+
+        [HttpPost("filter")]
+        public async Task<ActionResult<ServiceResponse<List<CreateRoomDTO>>>> FilterRooms([FromBody] FilterDTO filter)
+        {
+            var response = await _roomService.GetFilteredRooms(filter);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
     }
 
 }

@@ -1,3 +1,4 @@
+using Booking_API;
 using Booking_API.Interfaces;
 using Booking_API.Models;
 using Booking_API.Services;
@@ -30,6 +31,10 @@ builder.Services.AddCors(options =>
                   .AllowCredentials();
         });
 });
+
+// Register AutoMapper with assembly scanning
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
 
 
 // Add services to the container.
@@ -73,9 +78,13 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
  options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+// Added DI services 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHotelService, HotelService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+
 
 
 builder.Services.AddAuthentication(options =>

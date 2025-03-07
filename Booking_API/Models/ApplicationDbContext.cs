@@ -16,6 +16,9 @@ namespace Booking_API.Models
         public DbSet<Image> Images { get; set; }
         public DbSet<RoomType> RoomTypes { get; set; }
 
+        public DbSet<Booking> Bookings { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Ensure Id is the primary key for each model

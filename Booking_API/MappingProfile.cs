@@ -12,11 +12,10 @@ namespace Booking_API
         public MappingProfile()
         {
             CreateMap<ImageDTO, Image>();
-
+            CreateMap<RoomType, RoomTypeDTO>();
+            CreateMap<Booking, BookingDTO>();
             CreateMap<Room, RoomDTO>()
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.Select(i => i.Source).ToList()));
-
-            CreateMap<Booking, BookingDTO>();
 
         }
     }

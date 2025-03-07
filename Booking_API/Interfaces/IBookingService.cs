@@ -10,5 +10,6 @@ namespace Booking_API.Interfaces
         //Task<ServiceResponse<List<BookingDTO>>> GetBookings();
         Task<ServiceResponse<BookingDTO>> GetBookingById(int bookingId);
         Task<ServiceResponse<bool>> DeleteBooking(int bookingId);
+        Task<ServiceResponse<List<BookingDTO>>> GetBookings();
     }
 }

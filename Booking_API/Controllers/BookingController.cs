@@ -40,18 +40,19 @@ namespace Booking_API.Controllers
 
 
         // GET: api/Booking
-        //[HttpGet]
-        //public async Task<ActionResult<ServiceResponse<List<BookingDTO>>>> GetBookings()
-        //{
-        //    var response = await _bookingService.GetBookings();
+        [HttpGet]
 
-        //    if (response.Success)
-        //    {
-        //        return Ok(response);
-        //    }
+        public async Task<ActionResult<ServiceResponse<List<BookingDTO>>>> GetBookings()
+        {
+            var response = await _bookingService.GetBookings();
 
-        //    return NotFound(response);
-        //}
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+
+            return NotFound(response);
+        }
 
         // GET: api/Booking/{id}   need to change to get particular user booking's ! 
         [HttpGet("{bookingId}")]

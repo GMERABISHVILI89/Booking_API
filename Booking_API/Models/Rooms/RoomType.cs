@@ -11,6 +11,6 @@ namespace Booking_API.Models.Rooms
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty; // e.g., "Standard", "Deluxe", "Suite"
 
-        public string? Description { get; set; } // Optional description
+        public string? Description { get; set; } 
     }
 }

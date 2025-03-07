@@ -14,10 +14,6 @@ namespace Booking_API.Interfaces
         Task<ServiceResponse<RoomDTO>> AddRoom(CreateRoomDTO roomDTO);
         Task<ServiceResponse<RoomDTO>> UpdateRoom(int roomId, UpdateRoomDTO roomDTO);
         Task<ServiceResponse<bool>> DeleteRoom(int roomId);
-
-   
-
-
-        Task<ServiceResponse<List<FilteredRoomDTO>>> GetFilteredRooms(FilterDTO filter);
+  
     }
 }

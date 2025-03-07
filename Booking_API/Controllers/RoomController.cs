@@ -94,17 +94,7 @@ namespace Booking_API.Controllers
         }
 
 
-        // es gadasatania filter shi ..
-        [HttpPost("filter")]
-        public async Task<ActionResult<ServiceResponse<List<CreateRoomDTO>>>> FilterRooms([FromBody] FilterDTO filter)
-        {
-            var response = await _roomService.GetFilteredRooms(filter);
-            if (!response.Success)
-            {
-                return BadRequest(response);
-            }
-            return Ok(response);
-        }
+
 
     }
 

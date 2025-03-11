@@ -18,81 +18,66 @@ namespace Booking_API.Controllers
             _hotelService = hotelService;
         }
 
-
-
         // Add Hotel
         [HttpPost("AddHotel")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddHotel([FromBody] HotelsDTO hotelDto)
+        public async Task<ActionResult<ServiceResponse<Hotel>>> AddHotel([FromForm] CreateHotelDTO hotelDTO, [FromForm] IFormFile hotelImage)
         {
-            var response = await _hotelService.AddHotel(hotelDto);
+            if (hotelDTO == null)
+                return BadRequest(new ServiceResponse<Hotel> { Success = false, Message = "Invalid data." });
 
-            if (response.Success)
-            {
-                return Ok(response);  
-            }
-            else
-            {
-                return BadRequest(response); 
-            }
-        }
-
-
-        [HttpGet("GetAllHotels")] 
-        public async Task<ActionResult<ServiceResponse<List<Hotel>>>> GetAll() 
-        {
-            var response = await _hotelService.GetAll();
-
-            if (response.Success)
-            {
-                return Ok(response);
-            }
-            else
-            {
-                return BadRequest(response); 
-            }
-        }
-
-        [HttpGet("{hotelId}")]
-        public async Task<ActionResult<ServiceResponse<List<Hotel>>>> GetHotelById(int hotelId) 
-        {
-            var response = await _hotelService.GetHotel(hotelId);
-
-            if (response.Success)
-            {
-                return Ok(response);
-            }
-            else
-            {
-                return BadRequest(response); 
-            }
-        }
-
-        [HttpDelete("{hotelId}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ServiceResponse<bool>>> DeleteHotel(int hotelId)  // Return bool here
-        {
-            var response = await _hotelService.DeleteHotel(hotelId);
-            if (!response.Data)
-            {
-                return NotFound(response); 
-            }
-            return Ok(response); 
-        }
-
-
-        [HttpPut("update/{hotelId}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ServiceResponse<Hotel>>> UpdateHotel(int hotelId, HotelsDTO hotelDTO)
-        {
-            var response = await _hotelService.UpdateHotel(hotelId, hotelDTO);
+            var response = await _hotelService.AddHotel(hotelDTO, hotelImage);
 
             if (!response.Success)
-            {
-                return NotFound(response);
-            }
+                return Conflict(response); // Hotel already exists
 
-            return Ok(response);
+            return CreatedAtAction(nameof(GetHotelById), new { hotelId = response.Data.Id }, response);
+        }
+
+        // ✅ Get All Hotels
+        [HttpGet("all")]
+        public async Task<ActionResult<ServiceResponse<List<Hotel>>>> GetAllHotels()
+        {
+            var response = await _hotelService.GetAllHotels();
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+
+        // ✅ Get Hotel By ID
+        [HttpGet("hotel/{hotelId}")]
+        public async Task<ActionResult<ServiceResponse<Hotel>>> GetHotelById(int hotelId)
+        {
+            var response = await _hotelService.GetHotelById(hotelId);
+            return response.Success ? Ok(response) : NotFound(response);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("delete/{hotelId}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteHotel(int hotelId)
+        {
+            var response = await _hotelService.DeleteHotel(hotelId);
+            return response.Success ? Ok(response) : NotFound(response);
+        }
+
+        [Authorize(Roles = "Admin")]
+        // ✅ Update Hotel
+        [HttpPut("update/{hotelId}")]
+        public async Task<ActionResult<ServiceResponse<Hotel>>> UpdateHotel(int hotelId,
+                                                                                                                                [FromForm] string name,
+                                                                                                                                [FromForm] string address,
+                                                                                                                                [FromForm] string city,
+                                                                                                                                [FromForm] IFormFile hotelImage)
+        {
+            var hotelDTO = new UpdateHotelDTO
+            {
+                name = name,
+                address = address,
+                city = city
+            };
+            if (hotelDTO == null)
+                return BadRequest(new ServiceResponse<Hotel> { Success = false, Message = "Invalid data." });
+
+            var response = await _hotelService.UpdateHotel(hotelId, hotelDTO, hotelImage);
+            return response.Success ? Ok(response) : NotFound(response);
         }
     }
 }

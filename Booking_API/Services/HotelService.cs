@@ -1,193 +1,248 @@
-﻿using Booking_API.Interfaces;
+﻿using AutoMapper;
+using Booking_API.Interfaces;
 using Booking_API.Models;
 using Booking_API.Models.DTO_s.Hotel;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System;
 
 namespace Booking_API.Services
 {
     public class HotelService : IHotelService
     {
 
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-
-        public HotelService(ApplicationDbContext context)
+        public HotelService(ApplicationDbContext dbContext, IMapper mapper)
         {
-            _context = context;
+            _dbContext = dbContext;
+            _mapper = mapper;
         }
-        public async Task<ServiceResponse<List<Hotel>>> GetAll()
+
+        // ✅ Get All Hotels
+        public async Task<ServiceResponse<List<Hotel>>> GetAllHotels()
         {
+            var response = new ServiceResponse<List<Hotel>>();
             try
             {
-                List<Hotel> hotelList = await _context.Hotels.ToListAsync();
-
-                return new ServiceResponse<List<Hotel>>
-                {
-                    Data = hotelList,
-                    Success = true,
-                    Message = "Hotels retrieved successfully."
-                };
+                response.Data = await _dbContext.Hotels.Include(h => h.Rooms).ToListAsync();
+                response.Success = true;
+                response.Message = "Hotels retrieved successfully.";
             }
             catch (Exception ex)
             {
-                return new ServiceResponse<List<Hotel>>
-                {
-                    Data = null,
-                    Success = false,
-                    Message = $"An error occurred: {ex.Message}"
-                };
+                response.Success = false;
+                response.Message = ex.Message;
             }
+            return response;
         }
 
-        public async Task<ServiceResponse<Hotel>> GetHotel(int hotelid)
-        {
-            try
-            {
-                var hotel = await _context.Hotels
-                                                             .Include(h => h.Rooms) // Include Rooms
-                                                            .ThenInclude(r => r.Images) // Include Images inside Rooms
-                                                            .Include(h => h.Rooms) // Include Rooms again
-                                                            .ThenInclude(r => r.BookedDates) // Include BookedDates inside Rooms
-                                                            .FirstOrDefaultAsync(h => h.Id == hotelid);
-                if (hotel == null) {
-                    return new ServiceResponse<Hotel>
-                    {
-                        Data = null!,
-                        Success = false,
-                        Message = "Hotel Not Found !"
-                    };
-                }
-                return new ServiceResponse<Hotel> {
-                    Data = hotel!,
-                    Success = true,
-                    Message = "Success"
-                };
-            }
-            catch (Exception exe)
-            {
-
-                return new ServiceResponse<Hotel>
-                {
-                    Data = null,
-                    Success = false,
-                    Message = $"An error occurred: {exe.Message}"
-                };
-            }
-        }
-
-
-        public async Task<ServiceResponse<Hotel>> AddHotel(HotelsDTO hotelDto)
+        // ✅ Get Hotel By ID
+        public async Task<ServiceResponse<Hotel>> GetHotelById(int id)
         {
             var response = new ServiceResponse<Hotel>();
+            var hotel = await _dbContext.Hotels.Include(h => h.Rooms).FirstOrDefaultAsync(h => h.Id == id);
 
-            try
+            if (hotel == null)
             {
-                var hotel = new Hotel
-                {
-                    Name = hotelDto.name,
-                    Address = hotelDto.address,
-                    City = hotelDto.city,
-                    FeaturedImage = hotelDto.featuredImage
-                };
-              
-                 _context.Hotels.Add(hotel);
-                await _context.SaveChangesAsync();
-
+                response.Success = false;
+                response.Message = "Hotel not found.";
+            }
+            else
+            {
                 response.Data = hotel;
                 response.Success = true;
-                response.Message = "Hotel added successfully.";
+                response.Message = "Hotel retrieved successfully.";
             }
-            catch (Exception ex)
-            {
-
-                response.Success = false;
-                response.Message = $"An error occurred while adding the hotel: {ex.Message}";
-            }
-
             return response;
         }
 
-        public async Task<ServiceResponse<bool>> DeleteHotel(int hotelId)  // Return bool here
-        {
-            var response = new ServiceResponse<bool>();
-
-            try
-            {
-              
-                var hotel = await _context.Hotels.Include(h => h.Rooms)
-                                                 .ThenInclude(r => r.Images)
-                                                 .FirstOrDefaultAsync(h => h.Id == hotelId);
-
-                if (hotel == null)
-                {
-                    response.Success = false;
-                    response.Message = "Hotel not found.";
-                    response.Data = false; // Hotel not found, return false
-                }
-                else
-                {
-                    // Optionally delete associated rooms and images (if needed)
-                    _context.Rooms.RemoveRange(hotel.Rooms); // Remove associated rooms
-                    await _context.SaveChangesAsync();
-
-                    _context.Hotels.Remove(hotel); 
-                    await _context.SaveChangesAsync();
-                    response.Data = true; 
-                    response.Message = "Hotel deleted successfully.";
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Success = false;
-                response.Message = $"An error occurred while deleting the hotel: {ex.Message}";
-                response.Data = false; 
-            }
-
-            return response;
-        }
-
-
-        public async Task<ServiceResponse<Hotel>> UpdateHotel(int hotelId, HotelsDTO hotelDTO)
+        // ✅ Add Hotel
+        public async Task<ServiceResponse<Hotel>> AddHotel(CreateHotelDTO hotelDTO, IFormFile hotelImage)
         {
             var response = new ServiceResponse<Hotel>();
 
             try
             {
-                // Find the hotel by ID
-                var hotel = await _context.Hotels.Include(h => h.Rooms)
-                                                 .ThenInclude(r => r.Images)
-                                                 .FirstOrDefaultAsync(h => h.Id == hotelId);
-
-                if (hotel == null)
+                // 🔹 Validate DTO
+                if (string.IsNullOrEmpty(hotelDTO.name) || string.IsNullOrEmpty(hotelDTO.address))
                 {
                     response.Success = false;
-                    response.Message = "Hotel not found.";
-                    response.Data = null;
+                    response.Message = "Hotel name and address are required.";
+                    return response;
                 }
-                else
+
+                // 🔹 Check if the hotel already exists
+                var existingHotel = await _dbContext.Hotels
+                    .FirstOrDefaultAsync(h => h.Name == hotelDTO.name && h.Address == hotelDTO.address);
+
+                if (existingHotel != null)
                 {
-  
-                    hotel.Name = hotelDTO.name;
-                    hotel.Address = hotelDTO.address;
-                    hotel.City = hotelDTO.city;
-                    hotel.FeaturedImage = hotelDTO.featuredImage;
-
-   
-                    await _context.SaveChangesAsync();
-
-                    response.Data = hotel;
-                    response.Message = "Hotel updated successfully.";
+                    response.Success = false;
+                    response.Message = "A hotel with the same name and address already exists.";
+                    return response;
                 }
+
+                // 🔹 Validate and Save Image
+                if (hotelImage == null || hotelImage.Length == 0)
+                {
+                    response.Success = false;
+                    response.Message = "Hotel image is required.";
+                    return response;
+                }
+
+                if (hotelImage.Length > 5 * 1024 * 1024) // 5MB limit
+                {
+                    response.Success = false;
+                    response.Message = "Image size must be less than 5MB.";
+                    return response;
+                }
+
+                string imagePath = await SaveHotelImageAsync(hotelImage);
+
+                // 🔹 Create and Save Hotel
+                var hotel = new Hotel
+                {
+                    Name = hotelDTO.name,
+                    Address = hotelDTO.address,
+                    City = hotelDTO.city,
+                    hotelImage = imagePath
+                };
+
+                _dbContext.Hotels.Add(hotel);
+                await _dbContext.SaveChangesAsync();
+
+                response.Data = hotel;
+                response.Message = "Hotel added successfully!";
             }
             catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = $"An error occurred while updating the hotel: {ex.Message}";
-                response.Data = null;
+                response.Message = "An error occurred while adding the hotel.";
+                // Log the exception (e.g., using ILogger)
             }
 
             return response;
         }
 
+        // ✅ Update Hotel
+        public async Task<ServiceResponse<Hotel>> UpdateHotel(int hotelId, UpdateHotelDTO hotelDTO, IFormFile hotelImage)
+        {
+            var response = new ServiceResponse<Hotel>();
+
+            try
+            {
+                // 🔹 Find the hotel by ID
+                var hotel = await _dbContext.Hotels.FindAsync(hotelId);
+
+                if (hotel == null)
+                {
+                    response.Success = false;
+                    response.Message = "Hotel not found.";
+                    return response;
+                }
+
+                // 🔹 Update hotel details
+                hotel.Name = hotelDTO.name;
+                hotel.Address = hotelDTO.address;
+                hotel.City = hotelDTO.city;
+
+                // 🔹 Update hotel image if a new image is provided
+                if (hotelImage != null && hotelImage.Length > 0)
+                {
+                    // Delete the old image if it exists
+                    if (!string.IsNullOrEmpty(hotel.hotelImage))
+                    {
+                        var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", hotel.hotelImage.TrimStart('/'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    // Save the new image
+                    string newImagePath = await SaveHotelImageAsync(hotelImage);
+                    hotel.hotelImage = newImagePath;
+                }
+
+                // 🔹 Save changes to the database
+                _dbContext.Hotels.Update(hotel);
+                await _dbContext.SaveChangesAsync();
+
+                response.Data = hotel;
+                response.Message = "Hotel updated successfully!";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = "An error occurred while updating the hotel.";
+                // Log the exception (e.g., using ILogger)
+            }
+
+            return response;
+        }
+
+        // ✅ Delete Hotel
+        public async Task<ServiceResponse<bool>> DeleteHotel(int id)
+        {
+            var response = new ServiceResponse<bool>();
+            try
+            {
+                var hotel = await _dbContext.Hotels.FindAsync(id);
+                if (hotel == null)
+                {
+                    response.Success = false;
+                    response.Message = "Hotel not found.";
+                    return response;
+                }
+
+                _dbContext.Hotels.Remove(hotel);
+                await _dbContext.SaveChangesAsync();
+
+                response.Data = true;
+                response.Success = true;
+                response.Message = "Hotel deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+
+
+        #region HelperMethods
+
+
+        public async Task<string> SaveHotelImageAsync(IFormFile imageFile)
+        {
+            if (imageFile == null || imageFile.Length == 0)
+                throw new ArgumentException("No image file provided.");
+
+            // Validate file type
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var fileExtension = Path.GetExtension(imageFile.FileName).ToLower();
+            if (!allowedExtensions.Contains(fileExtension))
+                throw new ArgumentException("Invalid file type. Only JPG/JPEG/PNG files are allowed.");
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/hotel_images");
+            Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
+
+            string uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(fileStream);
+            }
+
+            return $"/hotel_images/{uniqueFileName}"; // Return relative path to store in DB
+        }
+        #endregion
     }
+
 }

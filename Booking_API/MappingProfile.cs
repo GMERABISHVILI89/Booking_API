@@ -11,6 +11,15 @@ namespace Booking_API
     {
         public MappingProfile()
         {
+
+            CreateMap<CreateHotelDTO, Hotel>()
+           .ForMember(dest => dest.hotelImage, opt => opt.MapFrom(src => src.hotelImage));
+
+            CreateMap<Hotel, CreateHotelDTO>()
+                .ForMember(dest => dest.hotelImage, opt => opt.MapFrom(src => src.hotelImage));
+
+
+
             CreateMap<ImageDTO, Image>();
             CreateMap<RoomType, RoomTypeDTO>();
             CreateMap<Booking, BookingDTO>();

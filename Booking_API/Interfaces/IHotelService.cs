@@ -6,11 +6,12 @@ namespace Booking_API.Interfaces
 {
     public interface IHotelService
     {
-        Task<ServiceResponse<List<Hotel>>> GetAll();
-        Task<ServiceResponse<Hotel>> GetHotel(int hotelId);
-        Task<ServiceResponse<Hotel>> AddHotel(HotelsDTO hotel);
+
+        Task<ServiceResponse<List<Hotel>>> GetAllHotels();
+        Task<ServiceResponse<Hotel>> GetHotelById(int hotelId);
+        Task<ServiceResponse<Hotel>> AddHotel(CreateHotelDTO hotelDTO, IFormFile hotelImage);
+        Task<ServiceResponse<Hotel>> UpdateHotel(int hotelId, UpdateHotelDTO hotelDTO, IFormFile hotelImage);
         Task<ServiceResponse<bool>> DeleteHotel(int hotelId);
-        Task<ServiceResponse<Hotel>> UpdateHotel(int hotelId, HotelsDTO hotelDTO);
 
     }
 }

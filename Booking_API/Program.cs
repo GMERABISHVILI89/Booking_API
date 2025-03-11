@@ -48,8 +48,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hotel Booking", Version = "v1" });
+   
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hotel Booking", Version = "v2" });
 
+    // Add support for file uploads in Swagger
+    c.OperationFilter<SwaggerFileUploadFilter>();
+
+
+    c.EnableAnnotations();
     // Add JWT Authentication to Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -124,6 +130,9 @@ var app = builder.Build();
 // Enable CORS
 app.UseCors("AllowAngularApp");
 
+
+// Enables serving wwwroot files
+app.UseStaticFiles(); 
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

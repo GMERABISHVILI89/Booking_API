@@ -27,7 +27,10 @@ namespace Booking_API.Services
             var response = new ServiceResponse<List<Hotel>>();
             try
             {
-                response.Data = await _dbContext.Hotels.Include(h => h.Rooms).ToListAsync();
+                var hotels = await _dbContext.Hotels.Include(h => h.Rooms).ToListAsync();
+
+                // Construct the full image URL based on the file name or GUID
+                response.Data = hotels;
                 response.Success = true;
                 response.Message = "Hotels retrieved successfully.";
             }

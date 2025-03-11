@@ -39,7 +39,26 @@ namespace Booking_API.Controllers
         public async Task<ActionResult<ServiceResponse<List<Hotel>>>> GetAllHotels()
         {
             var response = await _hotelService.GetAllHotels();
-            return response.Success ? Ok(response) : BadRequest(response);
+
+            if (response.Success)
+            {
+                // You can construct the full image URL here if the image is stored locally
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+                foreach (var hotel in response.Data)
+                {
+                    if (!string.IsNullOrEmpty(hotel.hotelImage))
+                    {
+                        // Assuming hotel.HotelImage stores the GUID or file name of the image
+                        hotel.hotelImage = baseUrl + hotel.hotelImage;
+                    }
+                }
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest(response);
+            }
         }
 
         // ✅ Get Hotel By ID

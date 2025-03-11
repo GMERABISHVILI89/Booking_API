@@ -62,11 +62,28 @@ namespace Booking_API.Controllers
         }
 
         // ✅ Get Hotel By ID
-        [HttpGet("hotel/{hotelId}")]
-        public async Task<ActionResult<ServiceResponse<Hotel>>> GetHotelById(int hotelId)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<Hotel>>> GetHotelById(int id)
         {
-            var response = await _hotelService.GetHotelById(hotelId);
-            return response.Success ? Ok(response) : NotFound(response);
+            var response = await _hotelService.GetHotelById(id);
+
+            if (response.Success)
+            {
+                // Construct the full image URL if the image is stored locally
+                var baseUrl = $"{Request.Scheme}://{Request.Host}"; 
+
+                if (!string.IsNullOrEmpty(response.Data?.hotelImage))
+                {
+                    // Assuming hotelImage stores the GUID or file name of the image
+                    response.Data.hotelImage = baseUrl + response.Data.hotelImage;
+                }
+
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest(response);
+            }
         }
 
         [Authorize(Roles = "Admin")]

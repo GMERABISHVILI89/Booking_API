@@ -46,19 +46,31 @@ namespace Booking_API.Services
         public async Task<ServiceResponse<Hotel>> GetHotelById(int id)
         {
             var response = new ServiceResponse<Hotel>();
-            var hotel = await _dbContext.Hotels.Include(h => h.Rooms).FirstOrDefaultAsync(h => h.Id == id);
 
-            if (hotel == null)
+            try
+            {
+                var hotel = await _dbContext.Hotels
+                    .Include(h => h.Rooms)  // If you want to include rooms, you can add this.
+                    .FirstOrDefaultAsync(h => h.Id == id);  // Get hotel by ID
+
+                if (hotel == null)
+                {
+                    response.Success = false;
+                    response.Message = "Hotel not found";
+                }
+                else
+                {
+                    response.Data = hotel;
+                    response.Success = true;
+                    response.Message = "Hotel retrieved successfully.";
+                }
+            }
+            catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = "Hotel not found.";
+                response.Message = ex.Message;
             }
-            else
-            {
-                response.Data = hotel;
-                response.Success = true;
-                response.Message = "Hotel retrieved successfully.";
-            }
+
             return response;
         }
 

@@ -28,6 +28,7 @@ namespace Booking_API.Services
 
             try
             {
+
                 // Step 1: Validate room data
                 if (roomDTO == null || roomDTO.HotelId <= 0 || roomDTO.RoomTypeId <= 0)
                 {

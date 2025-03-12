@@ -22,9 +22,18 @@ namespace Booking_API.Controllers
         }
 
         // POST: api/room/add
-        [HttpPost("add")]
+        [HttpPost("add-room")]
         public async Task<ActionResult<ServiceResponse<RoomDTO>>> AddRoom([FromForm] CreateRoomDTO roomDTO, [FromForm] List<IFormFile> roomImages)
         {
+            if (roomImages == null || roomImages.Count == 0)
+            {
+                return BadRequest(new ServiceResponse<RoomDTO>
+                {
+                    Success = false,
+                    Message = "Please upload at least one image for the room."
+                });
+            }
+
             var response = await _roomService.AddRoom(roomDTO, roomImages);
             if (response.Success)
             {

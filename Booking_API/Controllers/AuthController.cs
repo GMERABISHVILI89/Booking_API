@@ -4,6 +4,8 @@ using Booking_API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Booking_API.Models.DTO_s.UserProfile;
+using System.Security.Claims;
 
 namespace Booking_API.Controllers
 {
@@ -30,6 +32,24 @@ namespace Booking_API.Controllers
             return await _authService.Login(userLoginDTO);
         }
 
-      
+        [HttpGet("Profile")]
+        [Authorize]
+        public async Task<ActionResult<ServiceResponse<UserProfileDTO>>> GetProfile()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new ServiceResponse<UserProfileDTO> { Success = false, Message = "User not authenticated" });
+            }
+
+            var response = await _authService.GetProfile(int.Parse(userId));
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
     }
 }

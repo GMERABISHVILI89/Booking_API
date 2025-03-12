@@ -278,7 +278,7 @@ namespace Booking_API.Services
             {
                 // Generate a unique file name
                 var fileName = $"{Guid.NewGuid()}_{image.FileName}";
-                var filePath = Path.Combine(_hostEnvironment.WebRootPath, "room_images", fileName);
+                var filePath = Path.Combine(_hostEnvironment.WebRootPath, "/room_images", fileName);
 
                 // Ensure the directory exists
                 var directory = Path.GetDirectoryName(filePath);

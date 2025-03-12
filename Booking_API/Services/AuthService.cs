@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Booking_API.Models.DTO_s.UserProfile;
 
 namespace Booking_API.Services
 {
@@ -20,6 +21,30 @@ namespace Booking_API.Services
         {
             _context = context;
             _configuration = configuration;
+        }
+        public async Task<ServiceResponse<UserProfileDTO>> GetProfile(int userId)
+        {
+            var response = new ServiceResponse<UserProfileDTO>();
+
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new UserProfileDTO
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email
+                })
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = "User not found";
+                return response;
+            }
+
+            response.Data = user;
+            return response;
         }
 
         public async Task<ServiceResponse<int>> Register(UserRegisterDTO registerDTO)

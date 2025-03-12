@@ -61,18 +61,36 @@ namespace Booking_API.Controllers
             var response = await _roomService.GetRoomById(roomId);
             if (response.Success)
             {
+                var baseUrl = $"{Request.Scheme}://{Request.Host}/";
+
+             
+                    if (response.Data.ImageUrls != null && response.Data.ImageUrls.Any())
+                    {
+                    // Convert relative paths to full URLs
+                    response.Data.ImageUrls = response.Data.ImageUrls.Select(imageUrl => baseUrl + imageUrl).ToList();
+                    }
                 return Ok(response);
             }
             return NotFound(response);
         }
 
         // GET: api/room/hotel/{hotelId}
-        [HttpGet("hotel/{hotelId}")]
+        [HttpGet("RoomsByHotelId/{hotelId}")]
         public async Task<ActionResult<ServiceResponse<List<RoomDTO>>>> GetRoomsByHotelId(int hotelId)
         {
             var response = await _roomService.GetRoomsByHotelId(hotelId);
             if (response.Success)
             {
+                var baseUrl = $"{Request.Scheme}://{Request.Host}/";
+
+                foreach (var room in response.Data)
+                {
+                    if (room.ImageUrls != null && room.ImageUrls.Any())
+                    {
+                        // Convert relative paths to full URLs
+                        room.ImageUrls = room.ImageUrls.Select(imageUrl => baseUrl + imageUrl).ToList();
+                    }
+                }
                 return Ok(response);
             }
             return NotFound(response);
@@ -97,6 +115,17 @@ namespace Booking_API.Controllers
             var response = await _roomService.GetAllRooms();
             if (response.Success)
             {
+                // Construct the base URL dynamically
+                var baseUrl = $"{Request.Scheme}://{Request.Host}/";
+
+                foreach (var room in response.Data)
+                {
+                    if (room.ImageUrls != null && room.ImageUrls.Any())
+                    {
+                        // Convert relative paths to full URLs
+                        room.ImageUrls = room.ImageUrls.Select(imageUrl => baseUrl + imageUrl).ToList();
+                    }
+                }
                 return Ok(response);
             }
             return NotFound(response);

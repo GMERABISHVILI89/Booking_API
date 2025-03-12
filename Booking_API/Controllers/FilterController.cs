@@ -21,7 +21,7 @@ namespace Booking_API.Controllers
 
         // GET: api/filter/availableRooms?startDate=2025-03-07&endDate=2025-03-10
         [HttpGet("availableRooms")]
-        public async Task<ActionResult<ServiceResponse<List<RoomDTO>>>> GetAvailableRooms([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<ActionResult<ServiceResponse<List<FilteredRoomDTO>>>> GetAvailableRooms([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             var response = await _filterService.GetAvailableRooms(startDate, endDate);
 

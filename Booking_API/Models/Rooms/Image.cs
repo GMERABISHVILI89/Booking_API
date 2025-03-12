@@ -5,10 +5,12 @@ namespace Booking_API.Models.Rooms
     public class Image
     {
         [Key]
-        public int Id { get; set; } // Primary Key
-        public string Source { get; set; } = string.Empty; // Image URL or Path
+        public int Id { get; set; }
 
         public int RoomId { get; set; } // Foreign Key for Room
-        public Room Room { get; set; } // Navigation Property
+
+        public string roomImage { get; set; } = string.Empty; // The image URL/path
+
+        public Room Room { get; set; } // Navigation Property for Room
     }
 }

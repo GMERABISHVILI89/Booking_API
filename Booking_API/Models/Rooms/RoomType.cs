@@ -6,11 +6,6 @@ namespace Booking_API.Models.Rooms
     {
         [Key]
         public int Id { get; set; }
-
-        [Required]
-        [MaxLength(100)]
-        public string Name { get; set; } = string.Empty; // e.g., "Standard", "Deluxe", "Suite"
-
-        public string? Description { get; set; } 
+        public string TypeName { get; set; } = string.Empty;  // E.g., "Single", "Double", etc.
     }
 }

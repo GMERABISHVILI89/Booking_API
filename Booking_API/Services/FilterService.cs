@@ -81,7 +81,7 @@ namespace Booking_API.Services
                     }).ToList(),
                     Images = r.Images.Select(i => new ImageDTO
                     {
-                        Source = i.Source
+                  
                     }).ToList()
                 }).ToList();
 
@@ -96,9 +96,9 @@ namespace Booking_API.Services
             return response;
         }
         // Get available rooms based on the start and end dates
-        public async Task<ServiceResponse<List<RoomDTO>>> GetAvailableRooms(DateTime startDate, DateTime endDate)
+        public async Task<ServiceResponse<List<FilteredRoomDTO>>> GetAvailableRooms(DateTime startDate, DateTime endDate)
         {
-            var response = new ServiceResponse<List<RoomDTO>>();
+            var response = new ServiceResponse<List<FilteredRoomDTO>>();
 
             try
             {
@@ -108,7 +108,7 @@ namespace Booking_API.Services
                     .Include(r => r.RoomType) // Include the RoomType
                     .ToListAsync();
 
-                response.Data = _mapper.Map<List<RoomDTO>>(availableRooms);
+                response.Data = _mapper.Map<List<FilteredRoomDTO>>(availableRooms);
                 response.Message = "Available rooms retrieved successfully.";
                 response.Success = true;
             }

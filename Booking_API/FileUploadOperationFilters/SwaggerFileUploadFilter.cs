@@ -1,7 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Booking_API
+namespace Booking_API.FileUploadOperationFilters
 {
     public class SwaggerFileUploadFilter : IOperationFilter
     {

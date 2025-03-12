@@ -30,18 +30,6 @@ namespace Booking_API.Controllers
             return await _authService.Login(userLoginDTO);
         }
 
-        [HttpGet("AdminOnlyPage")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ServiceResponse<string>> AdminOnlyPageTestCase()
-        {
-            return default;
-        }
-
-        [HttpGet("UserOnlyPage")]
-        [Authorize(Roles = "User")]
-        public async Task<ServiceResponse<string>> UserOnlyPageTestCase()
-        {
-            return default;
-        }
+      
     }
 }

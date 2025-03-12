@@ -1,4 +1,5 @@
 using Booking_API;
+using Booking_API.FileUploadOperationFilters;
 using Booking_API.Interfaces;
 using Booking_API.Models;
 using Booking_API.Services;
@@ -53,7 +54,6 @@ builder.Services.AddSwaggerGen(c =>
 
     // Add support for file uploads in Swagger
     c.OperationFilter<SwaggerFileUploadFilter>();
-
 
     c.EnableAnnotations();
     // Add JWT Authentication to Swagger

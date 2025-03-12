@@ -8,153 +8,81 @@ using AutoMapper;
 
 namespace Booking_API.Services
 {
+
     public class RoomService : IRoomService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IMapper _mapper;
 
-        public RoomService(ApplicationDbContext context, IMapper mapper)
+        public RoomService(ApplicationDbContext context, IWebHostEnvironment hostEnvironment, IMapper mapper)
         {
             _context = context;
+            _hostEnvironment = hostEnvironment;
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<List<RoomDTO>>> GetRoomsByHotelId(int hotelId)
-        {
-            var response = new ServiceResponse<List<RoomDTO>>();
-            try
-            {
-                var rooms = await _context.Rooms
-                                           .Where(r => r.HotelId == hotelId)
-                                           .Include(r => r.Images)
-                                           .Include(r => r.BookedDates)
-                                           .ToListAsync();
-
-                if (rooms == null || rooms.Count == 0)
-                {
-                    response.Success = false;
-                    response.Message = "No rooms found for this hotel.";
-                }
-                else
-                {
-                    response.Data = _mapper.Map<List<RoomDTO>>(rooms); 
-                    response.Message = "Rooms retrieved successfully.";
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Success = false;
-                response.Message = $"An error occurred while retrieving rooms: {ex.Message}";
-                response.Data = null;
-            }
-            return response;
-        }
-        public async Task<ServiceResponse<List<CreateRoomDTO>>> GetAllRooms()
-        {
-            var response = new ServiceResponse<List<CreateRoomDTO>>();
-
-            try
-            {
-                var rooms = await _context.Rooms
-                 //  .Include(r => r.BookedDates)  // Include booked dates
-                    .Include(r => r.Images)       // Include images
-                    .ToListAsync();
-
-                response.Data = rooms.Select(r => new CreateRoomDTO
-                {
-                    Name = r.Name,
-                    HotelId = r.HotelId,
-                    PricePerNight = r.PricePerNight,
-                    MaximumGuests = r.MaximumGuests,
-                    RoomTypeId = r.RoomTypeId,
-                    Images = r.Images.Select(i => new ImageDTO
-                    {
-                        Source = i.Source
-                    }).ToList()
-                }).ToList();
-
-                response.Success = true;
-            }
-            catch (Exception ex)
-            {
-                response.Success = false;
-                response.Message = "Error fetching rooms: " + ex.Message;
-            }
-
-            return response;
-        }
-
-        public async Task<ServiceResponse<RoomDTO>> GetRoomById(int roomId)
-        {
-            var response = new ServiceResponse<RoomDTO>();
-            try
-            {
-                var room = await _context.Rooms
-                                          .Include(r => r.Images)
-                                          .Include(r => r.BookedDates)
-                                          .FirstOrDefaultAsync(r => r.Id == roomId);
-
-                if (room == null)
-                {
-                    response.Success = false;
-                    response.Message = "Room not found.";
-                    response.Data = null;
-                }
-                else
-                {
-                    // Map the Room entity to RoomDTO using AutoMapper
-                    response.Data = _mapper.Map<RoomDTO>(room);
-                    response.Message = "Room retrieved successfully.";
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Success = false;
-                response.Message = $"An error occurred while retrieving the room: {ex.Message}";
-                response.Data = null;
-            }
-            return response;
-        }
-
-
-        public async Task<ServiceResponse<RoomDTO>> AddRoom(CreateRoomDTO roomDto)
+        public async Task<ServiceResponse<RoomDTO>> AddRoom(CreateRoomDTO roomDTO, List<IFormFile> roomImages)
         {
             var response = new ServiceResponse<RoomDTO>();
 
             try
             {
-                // 1️⃣ Create Room entity
+                // Step 1: Validate room data
+                if (roomDTO == null || roomDTO.HotelId <= 0 || roomDTO.RoomTypeId <= 0)
+                {
+                    response.Success = false;
+                    response.Message = "Invalid room data.";
+                    return response;
+                }
+
+                // Step 2: Ensure Hotel exists
+                var hotel = await _context.Hotels.FindAsync(roomDTO.HotelId);
+                if (hotel == null)
+                {
+                    response.Success = false;
+                    response.Message = "Hotel not found.";
+                    return response;
+                }
+
+                // Step 3: Create Room entity and save it to the database
                 var newRoom = new Room
                 {
-                    Name = roomDto.Name,
-                    HotelId = roomDto.HotelId,
-                    PricePerNight = roomDto.PricePerNight,
-                    Available = true, // Defaulting Available to true
-                    MaximumGuests = roomDto.MaximumGuests,
-                    RoomTypeId = roomDto.RoomTypeId
+                    Name = roomDTO.Name,
+                    HotelId = roomDTO.HotelId,
+                    PricePerNight = roomDTO.PricePerNight,
+                    Available = true,
+                    MaximumGuests = roomDTO.MaximumGuests,
+                    RoomTypeId = roomDTO.RoomTypeId
                 };
 
-                // 2️⃣ Save Room first (to generate an ID)
+                // Add Room to DB
                 _context.Rooms.Add(newRoom);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();  // Save to get Room Id
 
-                // 3️⃣ Assign RoomId to Images and save them
-                if (roomDto.Images != null && roomDto.Images.Any())
+                // Step 4: Save room images if any are provided
+                var imagePaths = new List<string>();
+                if (roomImages != null && roomImages.Any())
                 {
-                    var images = roomDto.Images.Select(i => new Image
-                    {
-                        Source = i.Source,
-                        RoomId = newRoom.Id // Assign RoomId after room is created
-                    }).ToList();
-
-                    _context.Images.AddRange(images);
-                    await _context.SaveChangesAsync();
-
-                    // Attach images to room after saving
-                    newRoom.Images = images;
+                    imagePaths = await SaveRoomImagesAsync(roomImages);
                 }
 
-                response.Data = _mapper.Map<RoomDTO>(newRoom); ;
+                // Step 5: Add Image entries to the database and associate with the room
+                var images = imagePaths.Select(path => new Image
+                {
+                    RoomId = newRoom.Id,
+                    roomImage = path
+                }).ToList();
+
+                if (images.Any())
+                {
+                    _context.Images.AddRange(images);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Step 6: Attach images to the room entity and return DTO
+                newRoom.Images = images;
+                response.Data = _mapper.Map<RoomDTO>(newRoom);
                 response.Message = "Room added successfully.";
             }
             catch (Exception ex)
@@ -166,69 +94,167 @@ namespace Booking_API.Services
             return response;
         }
 
-
-
-        public async Task<ServiceResponse<RoomDTO>> UpdateRoom(int roomId, UpdateRoomDTO roomDTO)
+        public async Task<ServiceResponse<RoomDTO>> UpdateRoom(int roomId, CreateRoomDTO roomDTO, List<IFormFile> roomImages)
         {
             var response = new ServiceResponse<RoomDTO>();
+
             try
             {
-                var room = await _context.Rooms
-                                          .Include(r => r.Images)
-                                          .Include(r => r.BookedDates)
-                                          .FirstOrDefaultAsync(r => r.Id == roomId);
+                // Step 1: Validate room data
+                if (roomDTO == null || roomDTO.HotelId <= 0 || roomDTO.RoomTypeId <= 0)
+                {
+                    response.Success = false;
+                    response.Message = "Invalid room data.";
+                    return response;
+                }
 
+                // Step 2: Ensure Room exists
+                var room = await _context.Rooms.Include(r => r.Images).FirstOrDefaultAsync(r => r.Id == roomId);
                 if (room == null)
                 {
                     response.Success = false;
                     response.Message = "Room not found.";
-                    response.Data = null;
                     return response;
                 }
 
+                // Step 3: Ensure Hotel exists
+                var hotel = await _context.Hotels.FindAsync(roomDTO.HotelId);
+                if (hotel == null)
+                {
+                    response.Success = false;
+                    response.Message = "Hotel not found.";
+                    return response;
+                }
+
+                // Step 4: Update room details
                 room.Name = roomDTO.Name;
+                room.HotelId = roomDTO.HotelId;
                 room.PricePerNight = roomDTO.PricePerNight;
                 room.MaximumGuests = roomDTO.MaximumGuests;
                 room.RoomTypeId = roomDTO.RoomTypeId;
 
-                if (roomDTO.Images != null)
+                // Step 5: Update images if new ones are uploaded
+                if (roomImages != null && roomImages.Any())
                 {
-                    room.Images.Clear();
-                    foreach (var imgUrl in roomDTO.Images)
+                    // Remove old images first
+                    _context.Images.RemoveRange(room.Images);
+                    await _context.SaveChangesAsync();
+
+                    // Save new images
+                    var newImagePaths = await SaveRoomImagesAsync(roomImages);
+
+                    // Add new images to the database
+                    var newImages = newImagePaths.Select(path => new Image
                     {
-                        room.Images = _mapper.Map<List<Image>>(roomDTO.Images);
-                    }
+                        RoomId = room.Id,
+                        roomImage = path
+                    }).ToList();
+
+                    _context.Images.AddRange(newImages);
+                    await _context.SaveChangesAsync();
+
+                    // Assign new images to the room
+                    room.Images = newImages;
                 }
 
+                // Step 6: Save changes to the room
+                _context.Rooms.Update(room);
                 await _context.SaveChangesAsync();
 
+                // Step 7: Return the updated room DTO
                 response.Data = _mapper.Map<RoomDTO>(room);
                 response.Message = "Room updated successfully.";
             }
             catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = $"An error occurred while updating the room: {ex.Message}";
-                response.Data = null;
+                response.Message = $"Error updating room: {ex.Message}";
             }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<RoomDTO>>> GetAllRooms()
+        {
+            var response = new ServiceResponse<List<RoomDTO>>();
+
+            try
+            {
+                var rooms = await _context.Rooms.Include(r => r.Images).ToListAsync();
+                response.Data = _mapper.Map<List<RoomDTO>>(rooms);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Error retrieving rooms: {ex.Message}";
+            }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<RoomDTO>> GetRoomById(int roomId)
+        {
+            var response = new ServiceResponse<RoomDTO>();
+
+            try
+            {
+                var room = await _context.Rooms.Include(r => r.Images).FirstOrDefaultAsync(r => r.Id == roomId);
+                if (room == null)
+                {
+                    response.Success = false;
+                    response.Message = "Room not found.";
+                    return response;
+                }
+
+                response.Data = _mapper.Map<RoomDTO>(room);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Error retrieving room: {ex.Message}";
+            }
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<RoomDTO>>> GetRoomsByHotelId(int hotelId)
+        {
+            var response = new ServiceResponse<List<RoomDTO>>();
+
+            try
+            {
+                var rooms = await _context.Rooms.Include(r => r.Images)
+                    .Where(r => r.HotelId == hotelId).ToListAsync();
+
+                response.Data = _mapper.Map<List<RoomDTO>>(rooms);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Error retrieving rooms for hotel {hotelId}: {ex.Message}";
+            }
+
             return response;
         }
 
         public async Task<ServiceResponse<bool>> DeleteRoom(int roomId)
         {
             var response = new ServiceResponse<bool>();
+
             try
             {
-                var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId);
-
+                var room = await _context.Rooms.Include(r => r.Images).FirstOrDefaultAsync(r => r.Id == roomId);
                 if (room == null)
                 {
                     response.Success = false;
                     response.Message = "Room not found.";
-                    response.Data = false;
                     return response;
                 }
 
+                // Delete images first
+                _context.Images.RemoveRange(room.Images);
+
+                // Delete room
                 _context.Rooms.Remove(room);
                 await _context.SaveChangesAsync();
 
@@ -238,72 +264,43 @@ namespace Booking_API.Services
             catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = $"An error occurred while deleting the room: {ex.Message}";
-                response.Data = false;
+                response.Message = $"Error deleting room: {ex.Message}";
             }
+
             return response;
         }
 
-
-
-       public async Task<ServiceResponse<bool>> BookRoom(BookRoomDTO bookingDto)
+        private async Task<List<string>> SaveRoomImagesAsync(List<IFormFile> roomImages)
         {
-            var response = new ServiceResponse<bool>();
-
-            try
+            var imagePaths = new List<string>();
+            foreach (var image in roomImages)
             {
-                var room = await _context.Rooms
-                                         .Include(r => r.BookedDates)
-                                         .FirstOrDefaultAsync(r => r.Id == bookingDto.RoomId);
+                // Generate a unique file name
+                var fileName = $"{Guid.NewGuid()}_{image.FileName}";
+                var filePath = Path.Combine(_hostEnvironment.WebRootPath, "room_images", fileName);
 
-                if (room == null)
+                // Ensure the directory exists
+                var directory = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(directory))
                 {
-                    response.Success = false;
-                    response.Message = "Room not found.";
-                    return response;
+                    Directory.CreateDirectory(directory);
                 }
 
-                // Check if room is already booked for the given period
-                bool isBooked = room.BookedDates.Any(b =>
-                    (bookingDto.StartDate >= b.StartDate && bookingDto.StartDate <= b.EndDate) || // Overlaps start
-                    (bookingDto.EndDate >= b.StartDate && bookingDto.EndDate <= b.EndDate) || // Overlaps end
-                    (bookingDto.StartDate <= b.StartDate && bookingDto.EndDate >= b.EndDate) // Fully covers existing booking
-                );
-
-                if (isBooked)
+                // Save the image to the file system
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    response.Success = false;
-                    response.Message = "Room is already booked for the selected dates.";
-                    return response;
+                    await image.CopyToAsync(stream);
                 }
 
-                // Create new booking entry
-                var newBooking = new BookedDate
-                {
-                    RoomId = bookingDto.RoomId,
-                    StartDate = bookingDto.StartDate,
-                    EndDate = bookingDto.EndDate
-                };
-
-                _context.BookedDates.Add(newBooking);
-                await _context.SaveChangesAsync();
-
-                response.Success = true;
-                response.Data = true;
-                response.Message = "Room booked successfully.";
+                // Add the image file path to the list
+                imagePaths.Add($"room_Images/{fileName}");
             }
-            catch (Exception ex)
-            {
-                response.Success = false;
-                response.Message = "An error occurred while booking the room: " + ex.Message;
-            }
-
-            return response;
+            return imagePaths;
         }
-
-
-      
-
     }
+
+
+
+
 
 }

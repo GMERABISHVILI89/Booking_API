@@ -31,7 +31,7 @@ namespace Booking_API.Controllers
             if (!response.Success)
                 return Conflict(response); // Hotel already exists
 
-            return CreatedAtAction(nameof(GetHotelById), new { hotelId = response.Data.Id }, response);
+            return Ok(response);
         }
 
         // ✅ Get All Hotels

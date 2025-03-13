@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\hotel_images\" />
     <Folder Include="wwwroot\room_images\" />
   </ItemGroup>
 

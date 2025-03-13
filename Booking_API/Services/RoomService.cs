@@ -274,18 +274,31 @@ namespace Booking_API.Services
         private async Task<List<string>> SaveRoomImagesAsync(List<IFormFile> roomImages)
         {
             var imagePaths = new List<string>();
+
+            // Define allowed image extensions
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+
+            // Define image folder path
+            var roomImagesFolder = Path.Combine(_hostEnvironment.WebRootPath, "room_images");
+
+            // Ensure the directory exists (only create if it doesn't exist)
+            if (!Directory.Exists(roomImagesFolder))
+            {
+                Directory.CreateDirectory(roomImagesFolder);
+            }
+
             foreach (var image in roomImages)
             {
-                // Generate a unique file name
-                var fileName = $"{Guid.NewGuid()}_{image.FileName}";
-                var filePath = Path.Combine(_hostEnvironment.WebRootPath, "/room_images", fileName);
-
-                // Ensure the directory exists
-                var directory = Path.GetDirectoryName(filePath);
-                if (!Directory.Exists(directory))
+                // Get file extension and validate
+                var fileExtension = Path.GetExtension(image.FileName).ToLower();
+                if (!allowedExtensions.Contains(fileExtension))
                 {
-                    Directory.CreateDirectory(directory);
+                    throw new InvalidOperationException("Invalid file type. Only .jpg, .jpeg, and .png are allowed.");
                 }
+
+                // Generate a unique file name
+                var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                var filePath = Path.Combine(roomImagesFolder, fileName);
 
                 // Save the image to the file system
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -293,9 +306,10 @@ namespace Booking_API.Services
                     await image.CopyToAsync(stream);
                 }
 
-                // Add the image file path to the list
-                imagePaths.Add($"room_Images/{fileName}");
+                // Add the relative image path (for saving in DB)
+                imagePaths.Add($"room_images/{fileName}");
             }
+
             return imagePaths;
         }
     }

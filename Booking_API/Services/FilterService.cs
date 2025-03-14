@@ -66,6 +66,7 @@ namespace Booking_API.Services
 
                 response.Data = rooms.Select(r => new FilteredRoomDTO
                 {
+                    Id = r.Id,
                     Name = r.Name,
                     HotelId = r.HotelId,
                     PricePerNight = r.PricePerNight,
@@ -79,9 +80,9 @@ namespace Booking_API.Services
                         EndDate = b.EndDate,
                         RoomId = b.RoomId
                     }).ToList(),
-                    Images = r.Images.Select(i => new ImageDTO
+                        imageUrls = r.Images.Select(i => new ImageDTO
                     {
-                  
+                         roomImage = i.roomImage
                     }).ToList()
                 }).ToList();
 

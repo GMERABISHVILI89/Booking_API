@@ -51,12 +51,26 @@ namespace Booking_API.Controllers
         [HttpPost("filter")]
         public async Task<ActionResult<ServiceResponse<List<FilteredRoomDTO>>>> FilterRooms([FromBody] FilterDTO filter)
         {
+       
             var response = await _filterService.GetFilteredRooms(filter);
-            if (!response.Success)
+            if (response.Success)
             {
-                return BadRequest(response);
+                // Construct the base URL dynamically
+                var baseUrl = $"{Request.Scheme}://{Request.Host}/";
+
+                foreach (var room in response.Data)
+                {
+                    if (room.imageUrls != null && room.imageUrls.Any())
+                    {
+                        room.imageUrls = room.imageUrls.Select(imageDto => new ImageDTO
+                        {
+                            roomImage = baseUrl + imageDto.roomImage
+                        }).ToList();
+                    }
+                }
+                return Ok(response);
             }
-            return Ok(response);
+            return NotFound(response);
         }
     }
 }

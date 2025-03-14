@@ -13,6 +13,6 @@ namespace Booking_API.Models.DTO_s.Room
         public int RoomTypeId { get; set; }
 
         public List<BookedDateDTO> BookedDates { get; set; } = new List<BookedDateDTO>();
-        public List<ImageDTO> Images { get; set; } = new List<ImageDTO>();
+        public List<ImageDTO> imageUrls { get; set; } = new List<ImageDTO>();
     }
 }

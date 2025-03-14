@@ -23,7 +23,7 @@ namespace Booking_API.Controllers
             _bookingService = bookingService;
         }
 
-        [HttpPost]
+        [HttpPost("addBooking")]
         [Authorize(Roles = "User")]
         public async Task<ActionResult<ServiceResponse<BookingDTO>>> CreateBooking(BookingDTO bookingDto)
         {

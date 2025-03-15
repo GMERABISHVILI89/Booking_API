@@ -7,6 +7,7 @@ using AutoMapper;
 using Booking_API.Models.DTO_s.Booking;
 using System.Security.Claims;
 using Booking_API.Models.Entities;
+using Booking_API.Migrations;
 
 namespace Booking_API.Services
 {
@@ -111,18 +112,21 @@ namespace Booking_API.Services
         }
 
 
-        public async Task<ServiceResponse<List<BookingDTO>>> GetBookings()
+        public async Task<ServiceResponse<List<BookingDTO>>> GetBookings(string userId)
         {
             var response = new ServiceResponse<List<BookingDTO>>();
             try
             {
-                var bookings = await _context.Bookings.ToListAsync();
+                var bookings = await _context.Bookings
+                    .Where(b => b.CustomerId ==userId) // Filter bookings by user ID
+                    .ToListAsync();
+
                 response.Data = _mapper.Map<List<BookingDTO>>(bookings);
             }
             catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = $"Error retrieving bookings: {ex.Message}";
+                response.Message = $"Error retrieving user bookings: {ex.Message}";
             }
 
             return response;
@@ -184,24 +188,33 @@ namespace Booking_API.Services
             return response;
         }
 
-        public async Task<ServiceResponse<bool>> DeleteBooking(int bookingId)
+        public async Task<ServiceResponse<bool>> DeleteBooking(int id, string userId)
         {
             var response = new ServiceResponse<bool>();
             try
             {
-                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
+                var booking = await _context.Bookings.FindAsync(id);
+
                 if (booking == null)
                 {
                     response.Success = false;
                     response.Message = "Booking not found.";
+                    return response;
                 }
-                else
+
+                if (booking.Id != id)
                 {
-                    _context.Bookings.Remove(booking);
-                    await _context.SaveChangesAsync();
-                    response.Data = true;
-                    response.Message = "Booking deleted successfully.";
+                    response.Success = false;
+                    response.Message = "You are not authorized to delete this booking.";
+                    return response;
                 }
+
+                _context.Bookings.Remove(booking);
+                await _context.SaveChangesAsync();
+
+                response.Success = true;
+                response.Data = true; // Indicate successful deletion
+                response.Message = "Booking deleted successfully.";
             }
             catch (Exception ex)
             {

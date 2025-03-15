@@ -6,6 +6,7 @@ using Booking_API.Services;
 using Booking_API.Interfaces;
 using Booking_API.Models.DTO_s.Booking;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Booking_API.Controllers
 {
@@ -35,16 +36,23 @@ namespace Booking_API.Controllers
                 return CreatedAtAction(nameof(GetBookingById), new { bookingId = response.Data.Id }, response);
             }
 
-            return BadRequest(response);  // Return a BadRequest if there was an error
+            return Ok(response);  // Return a BadRequest if there was an error
         }
 
 
         // GET: api/Booking
         [HttpGet]
-
-        public async Task<ActionResult<ServiceResponse<List<BookingDTO>>>> GetBookings()
+        public async Task<ActionResult<ServiceResponse<List<BookingDTO>>>> GetUserBookings()
         {
-            var response = await _bookingService.GetBookings();
+            // Get the user's ID from the JWT token
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new ServiceResponse<List<BookingDTO>> { Success = false, Message = "User ID not found." });
+            }
+
+            var response = await _bookingService.GetBookings(userId);
 
             if (response.Success)
             {
@@ -67,29 +75,22 @@ namespace Booking_API.Controllers
 
             return NotFound(response);
         }
-
-        // PUT: api/Booking/{id}  აქ არ გვინდა განახლება , წაიშალოს და ახალი დაემატოს თუ რამე
-        //[HttpPut("{bookingId}")]
-        //public async Task<ActionResult<ServiceResponse<BookingDTO>>> UpdateBooking(int bookingId, BookingDTO bookingDto)
-        //{
-        //    var response = await _bookingService.UpdateBooking(bookingId, bookingDto);
-
-        //    if (response.Success)
-        //    {
-        //        return Ok(response);
-        //    }
-
-        //    return NotFound(response);
-        //}
-
+  
         // DELETE: api/Booking/{id}
-        [HttpDelete("{bookingId}")]
         [Authorize(Roles = "User")]
-        public async Task<ActionResult<ServiceResponse<bool>>> DeleteBooking(int bookingId)
+        [HttpDelete("{id}")] // Add route parameter for booking ID
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteBooking(int id)
         {
-            var response = await _bookingService.DeleteBooking(bookingId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (response.Data)
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new ServiceResponse<bool> { Success = false, Message = "User ID not found." });
+            }
+
+            var response = await _bookingService.DeleteBooking(id, userId);
+
+            if (response.Success)
             {
                 return Ok(response);
             }

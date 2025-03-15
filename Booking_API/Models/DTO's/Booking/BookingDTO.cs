@@ -6,7 +6,7 @@ namespace Booking_API.Models.DTO_s.Booking
     public class BookingDTO
     {
         [Key]
-        [JsonIgnore]
+
         public int Id { get; set; }
         public int RoomId { get; set; }
         public DateTime CheckInDate { get; set; }

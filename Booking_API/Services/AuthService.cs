@@ -70,7 +70,47 @@ namespace Booking_API.Services
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+            try
+            {
+                // OAuth credentials
+                string clientId = "clientId";
+                string clientSecret = "clientSecret";
 
+                // For a web application, you should have a refresh token already obtained
+                // Use the refresh token you've previously obtained through the console app or OAuth playground
+                string refreshToken = "refreshToken";
+
+                // Initialize the Gmail OAuth2 sender with your refresh token
+                var gmailSender = new OAuth2EmailSender(
+                    clientId: clientId,
+                    clientSecret: clientSecret,
+                    refreshToken: refreshToken,
+                    senderEmail: "senderEmail"
+                );
+
+                // Create email body with reset link
+                string emailBody = $@"
+            <html>
+            <body>
+                <h3>Wellcome</h3>
+                <p>Yuor Registration on Booking.com was successfully finished</a>.</p>
+                <p>Enjoy and good luck .  travel with our website</p>
+            </body>
+            </html>";
+
+                // Send the email
+                await gmailSender.SendEmailAsync(
+                    to: user.Email,
+                    subject: "Wellcome",
+                    body: emailBody,
+                    isBodyHtml: true
+                );
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"Error sending email: {ex.Message}");
+            }
             response.Data = user.Id;
             response.Message = "User Registered Successfully !";
             return response;

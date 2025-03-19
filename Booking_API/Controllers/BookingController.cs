@@ -25,7 +25,7 @@ namespace Booking_API.Controllers
         }
 
         [HttpPost("addBooking")]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User,Admin")]
         public async Task<ActionResult<ServiceResponse<BookingDTO>>> CreateBooking(BookingDTO bookingDto)
         {
             var response = await _bookingService.CreateBooking(bookingDto);
@@ -75,9 +75,9 @@ namespace Booking_API.Controllers
 
             return NotFound(response);
         }
-  
+
         // DELETE: api/Booking/{id}
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User,Admin")]
         [HttpDelete("{id}")] // Add route parameter for booking ID
         public async Task<ActionResult<ServiceResponse<bool>>> DeleteBooking(int id)
         {

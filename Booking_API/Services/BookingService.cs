@@ -112,16 +112,47 @@ namespace Booking_API.Services
         }
 
 
-        public async Task<ServiceResponse<List<BookingDTO>>> GetBookings(string userId)
+        public async Task<ServiceResponse<List<BookingWithImageDTO>>> GetBookings(string userId)
         {
-            var response = new ServiceResponse<List<BookingDTO>>();
+            var response = new ServiceResponse<List<BookingWithImageDTO>>();
             try
             {
                 var bookings = await _context.Bookings
                     .Where(b => b.CustomerId ==userId) // Filter bookings by user ID
                     .ToListAsync();
 
-                response.Data = _mapper.Map<List<BookingDTO>>(bookings);
+                var bookingDTOs = new List<BookingWithImageDTO>();
+
+                foreach (var booking in bookings)
+                {
+                    var room = await _context.Rooms
+          .Include(r => r.Images) // Include the Images navigation property
+          .FirstOrDefaultAsync(r => r.Id == booking.RoomId);
+                    if (room != null)
+                    {
+                        var bookingDTO = _mapper.Map<BookingWithImageDTO>(booking);
+
+                     
+                        if (room.Images != null && room.Images.Any())
+                        {
+                            bookingDTO.RoomImage = room.Images[0].roomImage.ToString();
+                        }
+                        else
+                        {
+                            bookingDTO.RoomImage = null; 
+                        }
+
+                        bookingDTOs.Add(bookingDTO);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Room with ID {booking.RoomId} not found for booking ID {booking.Id}");
+                        var bookingDTO = _mapper.Map<BookingWithImageDTO>(booking); 
+                        bookingDTO.RoomImage = null;
+                        bookingDTOs.Add(bookingDTO);
+                    }
+                }
+                response.Data = bookingDTOs;
             }
             catch (Exception ex)
             {

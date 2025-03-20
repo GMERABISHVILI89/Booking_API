@@ -15,4 +15,9 @@ namespace Booking_API.Models.DTO_s.Booking
         public string CustomerName { get; set; }
         public string CustomerPhone { get; set; }
     }
+
+    public class BookingWithImageDTO : BookingDTO
+    {
+        public string RoomImage { get; set; }
+    }
 }

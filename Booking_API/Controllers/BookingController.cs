@@ -42,20 +42,29 @@ namespace Booking_API.Controllers
 
         // GET: api/Booking
         [HttpGet]
-        public async Task<ActionResult<ServiceResponse<List<BookingDTO>>>> GetUserBookings()
+        public async Task<ActionResult<ServiceResponse<List<BookingWithImageDTO>>>> GetUserBookings()
         {
             // Get the user's ID from the JWT token
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(userId))
             {
-                return BadRequest(new ServiceResponse<List<BookingDTO>> { Success = false, Message = "User ID not found." });
+                return BadRequest(new ServiceResponse<List<BookingWithImageDTO>> { Success = false, Message = "User ID not found." });
             }
 
             var response = await _bookingService.GetBookings(userId);
 
             if (response.Success)
             {
+                var baseUrl = $"{Request.Scheme}://{Request.Host}/";
+
+                foreach (var room in response.Data)
+                {
+                    if (room.RoomImage != null && room.RoomImage.Any())
+                    {
+                        room.RoomImage = baseUrl + room.RoomImage;
+                    }
+                }
                 return Ok(response);
             }
 

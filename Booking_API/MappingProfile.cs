@@ -28,7 +28,8 @@ namespace Booking_API
             EndDate = bd.EndDate
              }).ToList()));
 
-
+            CreateMap<Booking, BookingWithImageDTO>()
+           .ForMember(dest => dest.RoomImage, opt => opt.Ignore());
             CreateMap<ImageDTO, Image>();
             CreateMap<RoomType, RoomTypeDTO>();
             CreateMap<Booking, BookingDTO>();

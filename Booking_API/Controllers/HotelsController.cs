@@ -70,12 +70,26 @@ namespace Booking_API.Controllers
             if (response.Success)
             {
                 // Construct the full image URL if the image is stored locally
-                var baseUrl = $"{Request.Scheme}://{Request.Host}"; 
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+                var baseUrlRoom = $"{Request.Scheme}://{Request.Host}/";
+
 
                 if (!string.IsNullOrEmpty(response.Data?.hotelImage))
                 {
                     // Assuming hotelImage stores the GUID or file name of the image
                     response.Data.hotelImage = baseUrl + response.Data.hotelImage;
+                }
+
+                foreach (var room in response.Data!.Rooms)
+                {
+                    if (room.Images != null && room.Images.Any())
+                    {
+                        // Convert relative paths to full URLs
+                        foreach (var image in room.Images)
+                        {
+                            image.roomImage = baseUrlRoom + image.roomImage;
+                        }
+                    }
                 }
 
                 return Ok(response);

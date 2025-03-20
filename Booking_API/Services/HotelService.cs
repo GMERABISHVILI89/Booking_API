@@ -50,8 +50,9 @@ namespace Booking_API.Services
             try
             {
                 var hotel = await _dbContext.Hotels
-                    .Include(h => h.Rooms)  // If you want to include rooms, you can add this.
-                    .FirstOrDefaultAsync(h => h.Id == id);  // Get hotel by ID
+                    .Include(h => h.Rooms)
+                    .ThenInclude(r => r.Images) // Include images for each room
+                    .FirstOrDefaultAsync(h => h.Id == id);
 
                 if (hotel == null)
                 {

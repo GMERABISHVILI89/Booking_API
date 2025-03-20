@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Booking_API.Models.DTO_s.Hotel;
 using Booking_API.Services;
+using Google.Apis.Gmail.v1.Data;
 
 namespace Booking_API.Controllers
 {
@@ -72,5 +73,30 @@ namespace Booking_API.Controllers
             }
             return NotFound(response);
         }
+
+
+        [HttpGet("filterByCity")]
+
+        public async Task<ActionResult<List<FilterByCityDTO>>> GetHotelsByCity (string city)
+        {
+            var response = await _filterService.GetHotelsByCity(city);
+
+            if (response.Success)
+            {
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+                foreach (var hotel in response.Data)
+                {
+                    if (!string.IsNullOrEmpty(hotel.hotelImage))
+                    {
+                        // Assuming hotel.HotelImage stores the GUID or file name of the image
+                        hotel.hotelImage = baseUrl + hotel.hotelImage;
+                    }
+                }
+                return Ok(response);
+            }
+            return NotFound(response);
+        }
+
     }
 }

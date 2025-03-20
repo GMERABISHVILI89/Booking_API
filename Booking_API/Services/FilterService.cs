@@ -142,5 +142,37 @@ namespace Booking_API.Services
 
             return response;
         }
+
+        public async Task<ServiceResponse<List<FilterByCityDTO>>> GetHotelsByCity(string city)
+        {
+            var response = new ServiceResponse<List<FilterByCityDTO>>();
+
+            try
+            {
+                var hotels = await _context.Hotels
+                    .Where(h => h.City == city)
+                    .Select(h => new FilterByCityDTO 
+                    {
+                        
+                        Name = h.Name,
+                        Address = h.Address,
+                        City = h.City,
+                       hotelImage = h.hotelImage
+                    })
+                    .ToListAsync();
+
+                response.Data = hotels;
+                response.Success = true; 
+
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message; // Store the error message.
+                                               // Optionally, log the exception: _logger.LogError(ex, "Error getting hotels by city");
+            }
+
+            return response;
+        }
     }
 }

@@ -87,7 +87,7 @@ namespace Booking_API.Controllers
                 {
                     if (room.ImageUrls != null && room.ImageUrls.Any())
                     {
-                        // Convert relative paths to full URLs
+                  
                         room.ImageUrls = room.ImageUrls.Select(imageUrl => baseUrl + imageUrl).ToList();
                     }
                 }
@@ -115,14 +115,14 @@ namespace Booking_API.Controllers
             var response = await _roomService.GetAllRooms();
             if (response.Success)
             {
-                // Construct the base URL dynamically
+             
                 var baseUrl = $"{Request.Scheme}://{Request.Host}/";
 
                 foreach (var room in response.Data)
                 {
                     if (room.ImageUrls != null && room.ImageUrls.Any())
                     {
-                        // Convert relative paths to full URLs
+                       
                         room.ImageUrls = room.ImageUrls.Select(imageUrl => baseUrl + imageUrl).ToList();
                     }
                 }

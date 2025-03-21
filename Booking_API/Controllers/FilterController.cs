@@ -20,7 +20,7 @@ namespace Booking_API.Controllers
             _filterService = filterService;
         }
 
-        // GET: api/filter/availableRooms?startDate=2025-03-07&endDate=2025-03-10
+     
         [HttpGet("availableRooms")]
         public async Task<ActionResult<ServiceResponse<List<FilteredRoomDTO>>>> GetAvailableRooms([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
@@ -48,7 +48,7 @@ namespace Booking_API.Controllers
             return Ok(response);
         }
 
-        // es gadasatania filter shi ..
+
         [HttpPost("filter")]
         public async Task<ActionResult<ServiceResponse<List<FilteredRoomDTO>>>> FilterRooms([FromBody] FilterDTO filter)
         {
@@ -56,7 +56,7 @@ namespace Booking_API.Controllers
             var response = await _filterService.GetFilteredRooms(filter);
             if (response.Success)
             {
-                // Construct the base URL dynamically
+              
                 var baseUrl = $"{Request.Scheme}://{Request.Host}/";
 
                 foreach (var room in response.Data)
@@ -89,7 +89,7 @@ namespace Booking_API.Controllers
                 {
                     if (!string.IsNullOrEmpty(hotel.hotelImage))
                     {
-                        // Assuming hotel.HotelImage stores the GUID or file name of the image
+                 
                         hotel.hotelImage = baseUrl + hotel.hotelImage;
                     }
                 }

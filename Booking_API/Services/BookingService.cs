@@ -31,8 +31,6 @@ namespace Booking_API.Services
             try
             {
 
-
-                // Get the logged-in user's customerId (assuming the user is authenticated via JWT)
                 var loggedInUserId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var loggedInUserName = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;
 

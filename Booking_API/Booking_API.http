@@ -7,9 +7,13 @@ Content-Type: application/json
 
 {
     "username": "testuser",
+    "email": "test@example.com",
+    "role":"Admin",
     "password": "password123",
-    "email": "test@example.com"
+    "ConfirmPassword":"password123"
 }
+
+
 
 ###
 
@@ -19,9 +23,10 @@ POST {{Auth_API_HostAddress}}/Login
 Content-Type: application/json
 
 {
-    "username": "adminGiorgi",
-    "password": "Admin!234"
+    "username": "testuser",
+    "password": "password123"
 }
+
 
 ###
 
@@ -29,7 +34,7 @@ Content-Type: application/json
 
 GET {{Auth_API_HostAddress}}/Profile
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiJBZG1pbkdpb3JnaSIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTc0MjU1MTc5MywiZXhwIjoxNzQyNjM4MTkzLCJpYXQiOjE3NDI1NTE3OTMsImlzcyI6IkJvb2tpbmdBcGkiLCJhdWQiOiJCb29raW5nQXBpQ2xpZW50In0.VleANYFhBJbebzQ7nLNEHjeG-pfh9pqTnHenUSgr1ZR_pfAk0pXTkaS7iAsUQ2yqeRCyvwg8KkdmXhYf1_s9zQ
+Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIzIiwidW5pcXVlX25hbWUiOiJ0ZXN0dXNlciIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTc0MjU1NTQ3OCwiZXhwIjoxNzQyNjQxODc4LCJpYXQiOjE3NDI1NTU0NzgsImlzcyI6IkJvb2tpbmdBcGkiLCJhdWQiOiJCb29raW5nQXBpQ2xpZW50In0.R0zKeX7GkP7nqYBK1Or5bHMvSbogGbsf-TfC__eEip6P28X8HzBqkWp0w60u51K21t1XN4Q0vmm-F06o5K1Uig
 
 ###
 

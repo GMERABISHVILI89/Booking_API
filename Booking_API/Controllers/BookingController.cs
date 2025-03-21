@@ -18,7 +18,7 @@ namespace Booking_API.Controllers
     {
         private readonly IBookingService _bookingService;
 
-        // Constructor injection of IBookingService
+
         public BookingController(IBookingService bookingService)
         {
             _bookingService = bookingService;
@@ -44,7 +44,6 @@ namespace Booking_API.Controllers
         [HttpGet]
         public async Task<ActionResult<ServiceResponse<List<BookingWithImageDTO>>>> GetUserBookings()
         {
-            // Get the user's ID from the JWT token
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(userId))
@@ -71,7 +70,7 @@ namespace Booking_API.Controllers
             return NotFound(response);
         }
 
-        // GET: api/Booking/{id}   need to change to get particular user booking's ! 
+        // GET: api/Booking/{id}   
         [HttpGet("{bookingId}")]
         public async Task<ActionResult<ServiceResponse<BookingDTO>>> GetBookingById(int bookingId)
         {
@@ -87,7 +86,7 @@ namespace Booking_API.Controllers
 
         // DELETE: api/Booking/{id}
         [Authorize(Roles = "User,Admin")]
-        [HttpDelete("{id}")] // Add route parameter for booking ID
+        [HttpDelete("{id}")] 
         public async Task<ActionResult<ServiceResponse<bool>>> DeleteBooking(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -25,6 +25,14 @@ namespace Booking_API.Models
             modelBuilder.Entity<Room>().HasKey(r => r.Id);
             modelBuilder.Entity<BookedDate>().HasKey(b => b.Id);
             modelBuilder.Entity<Image>().HasKey(i => i.Id);
+
+   //         modelBuilder.Entity<RoomType>().HasData(
+   //    new RoomType { Id = 1, TypeName = "Single Room" },
+   //    new RoomType { Id = 2, TypeName = "Double Room" },
+   //    new RoomType { Id = 3, TypeName = "Triple Room" },
+   //    new RoomType { Id = 4, TypeName = "Deluxe Room" },
+   //    new RoomType { Id = 5, TypeName = "Family Room" }
+   //);
         }
 
     }

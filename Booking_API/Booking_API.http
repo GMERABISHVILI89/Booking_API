@@ -1,6 +1,63 @@
-@Booking_API_HostAddress = http://localhost:5059
+@Auth_API_HostAddress = https://localhost:7050/api/auth
+@RoomType_API_HostAddress = https://localhost:7050/api/roomtype
 
-GET {{Booking_API_HostAddress}}/weatherforecast/
+
+POST {{Auth_API_HostAddress}}/Register
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "password123",
+    "email": "test@example.com"
+}
+
+###
+
+@Auth_API_HostAddress = https://localhost:7050/api/auth
+
+POST {{Auth_API_HostAddress}}/Login
+Content-Type: application/json
+
+{
+    "username": "adminGiorgi",
+    "password": "Admin!234"
+}
+
+###
+
+@Auth_API_HostAddress = https://localhost:7050/api/auth
+
+GET {{Auth_API_HostAddress}}/Profile
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiJBZG1pbkdpb3JnaSIsInJvbGUiOiJBZG1pbiIsIm5iZiI6MTc0MjU1MTc5MywiZXhwIjoxNzQyNjM4MTkzLCJpYXQiOjE3NDI1NTE3OTMsImlzcyI6IkJvb2tpbmdBcGkiLCJhdWQiOiJCb29raW5nQXBpQ2xpZW50In0.VleANYFhBJbebzQ7nLNEHjeG-pfh9pqTnHenUSgr1ZR_pfAk0pXTkaS7iAsUQ2yqeRCyvwg8KkdmXhYf1_s9zQ
+
+###
+
+
+# RoomType Requests (New)
+
+POST {{RoomType_API_HostAddress}}/add-roomType
+Content-Type: application/json
+
+{
+    "TypeName": "Deluxe TEST"
+}
+
+###
+
+PUT {{RoomType_API_HostAddress}}/edit-roomType/1
+Content-Type: application/json
+{
+    "name": "Super Deluxe",
+}
+
+###
+
+DELETE {{RoomType_API_HostAddress}}/delete-roomType/8
+
+###
+
+GET {{RoomType_API_HostAddress}}/get-all-roomTypes
 Accept: application/json
 
 ###

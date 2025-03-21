@@ -34,6 +34,10 @@ namespace Booking_API
             CreateMap<ImageDTO, Image>();
             CreateMap<RoomType, RoomTypeGetDTO>(); // For single item retrieval
             CreateMap<RoomType, RoomTypeGetAllDTO>(); // For list retrieval
+
+            CreateMap<RoomTypeDTO, RoomTypeGetAllDTO>();
+            CreateMap<RoomTypeGetAllDTO, RoomTypeDTO>();
+
             CreateMap<CreateRoomTypeDTO, RoomType>(); // For creating a RoomType
             CreateMap<UpdateRoomTypeDTO, RoomType>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); // for updating a roomType.

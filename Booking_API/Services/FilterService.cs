@@ -3,6 +3,7 @@ using Booking_API.Interfaces;
 using Booking_API.Models;
 using Booking_API.Models.DTO_s.Hotel;
 using Booking_API.Models.DTO_s.Room;
+using Booking_API.Models.DTO_s.RoomType;
 using Microsoft.EntityFrameworkCore;
 
 namespace Booking_API.Services
@@ -123,14 +124,14 @@ namespace Booking_API.Services
         }
 
         // Get all room types
-        public async Task<ServiceResponse<List<RoomTypeDTO>>> GetRoomTypes()
+        public async Task<ServiceResponse<List<RoomTypeGetAllDTO>>> GetRoomTypes()
         {
-            var response = new ServiceResponse<List<RoomTypeDTO>>();
+            var response = new ServiceResponse<List<RoomTypeGetAllDTO>>();
 
             try
             {
                 var roomTypes = await _context.RoomTypes.ToListAsync();
-                response.Data = _mapper.Map<List<RoomTypeDTO>>(roomTypes);
+                response.Data = _mapper.Map<List<RoomTypeGetAllDTO>>(roomTypes);
                 response.Message = "Room types retrieved successfully.";
                 response.Success = true;
             }

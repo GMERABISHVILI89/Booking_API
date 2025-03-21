@@ -18,6 +18,8 @@ namespace Booking_API.Models
 
         public DbSet<Booking> Bookings { get; set; }
 
+        public DbSet<ExceptionLogs> ExceptionLogs { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,6 +1,7 @@
 using Booking_API;
 using Booking_API.FileUploadOperationFilters;
 using Booking_API.Interfaces;
+using Booking_API.Middlewares;
 using Booking_API.Models;
 using Booking_API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -36,6 +37,9 @@ builder.Services.AddCors(options =>
 // Register AutoMapper with assembly scanning
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
+
+//middleware service added
+builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 
 
 // Add services to the container.
@@ -146,6 +150,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

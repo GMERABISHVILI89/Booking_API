@@ -58,7 +58,7 @@ Content-Type: application/json
 
 ###
 
-DELETE {{RoomType_API_HostAddress}}/delete-roomType/8
+DELETE {{RoomType_API_HostAddress}}/delete-roomType/158
 
 ###
 

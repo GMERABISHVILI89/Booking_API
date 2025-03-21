@@ -89,26 +89,29 @@ namespace Booking_API.Services
         public async Task<ServiceResponse<bool>> DeleteRoomType(int id)
         {
             var response = new ServiceResponse<bool>();
-            try
-            {
+           
+            // test for handling exception (with middleware)
+            //try
+            //{
                 var roomType = await _context.RoomTypes.FirstOrDefaultAsync(t => t.Id == id);
-                if (roomType == null)
-                {
+                Console.WriteLine(roomType.Id);
+                  if (roomType == null)
+                    {
                     response.Success = false;
                     response.Message = "RoomType not found.";
                     return response;
-                }
+                    }
                 _context.RoomTypes.Remove(roomType);
                 await _context.SaveChangesAsync();
                 response.Data = true;
                 response.Success = true;
                 response.Message = "RoomType deleted successfully.";
-            }
-            catch (Exception ex)
-            {
-                response.Success = false;
-                response.Message = $"Error deleting RoomType: {ex.Message}";
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    response.Success = false;
+            //    response.Message = $"Error deleting RoomType: {ex.Message}";
+            //}
             return response;
         }
     }

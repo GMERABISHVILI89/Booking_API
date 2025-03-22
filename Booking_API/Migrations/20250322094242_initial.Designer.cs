@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Booking_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250307075057_booking")]
-    partial class booking
+    [Migration("20250322094242_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -118,6 +118,42 @@ namespace Booking_API.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Booking_API.Models.ExceptionLogs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ModifierId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StackTrace")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExceptionLogs");
+                });
+
             modelBuilder.Entity("Booking_API.Models.Hotel", b =>
                 {
                     b.Property<int>("Id")
@@ -134,11 +170,11 @@ namespace Booking_API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FeaturedImage")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("hotelImage")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -182,7 +218,7 @@ namespace Booking_API.Migrations
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Source")
+                    b.Property<string>("roomImage")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -237,17 +273,40 @@ namespace Booking_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("TypeName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("RoomTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            TypeName = "Single Room"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            TypeName = "Double Room"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            TypeName = "Triple Room"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            TypeName = "Deluxe Room"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            TypeName = "Family Room"
+                        });
                 });
 
             modelBuilder.Entity("Booking_API.Models.Booking", b =>

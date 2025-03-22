@@ -7,7 +7,6 @@ using AutoMapper;
 using Booking_API.Models.DTO_s.Booking;
 using System.Security.Claims;
 using Booking_API.Models.Entities;
-using Booking_API.Migrations;
 
 namespace Booking_API.Services
 {
@@ -230,6 +229,22 @@ namespace Booking_API.Services
                     response.Message = "Booking not found.";
                     return response;
                 }
+
+
+                var existingBooking = await _context.BookedDates.FirstOrDefaultAsync(b =>
+                    b.RoomId == booking.RoomId &&
+                    b.StartDate == booking.CheckInDate &&
+                    b.EndDate == booking.CheckOutDate);
+
+                if (existingBooking != null)
+                {
+                    if (existingBooking.StartDate == booking.CheckInDate && existingBooking.EndDate == booking.CheckOutDate)
+                    {
+                        _context.BookedDates.Remove(existingBooking);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
 
                 if (booking.Id != id)
                 {

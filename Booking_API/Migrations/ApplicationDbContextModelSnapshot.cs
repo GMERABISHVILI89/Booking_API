@@ -277,6 +277,33 @@ namespace Booking_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("RoomTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            TypeName = "Single Room"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            TypeName = "Double Room"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            TypeName = "Triple Room"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            TypeName = "Deluxe Room"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            TypeName = "Family Room"
+                        });
                 });
 
             modelBuilder.Entity("Booking_API.Models.Booking", b =>

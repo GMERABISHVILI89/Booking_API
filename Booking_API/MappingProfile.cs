@@ -43,7 +43,15 @@ namespace Booking_API
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); // for updating a roomType.
             CreateMap<Booking, BookingDTO>();
 
-
+            CreateMap<Room, FilteredRoomDTO>()
+              .ForMember(dest => dest.imageUrls, opt => opt.MapFrom(src =>
+                  src.Images.Select(img => new ImageDTO { roomImage = img.roomImage }).ToList()))
+              .ForMember(dest => dest.BookedDates, opt => opt.MapFrom(src =>
+                  src.BookedDates.Select(bd => new BookedDateDTO
+                  {
+                      StartDate = bd.StartDate,
+                      EndDate = bd.EndDate
+                  }).ToList()));
 
         }
     }

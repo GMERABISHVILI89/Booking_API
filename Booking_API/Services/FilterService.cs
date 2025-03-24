@@ -104,11 +104,12 @@ namespace Booking_API.Services
 
             try
             {
-                // Get rooms that are not booked during the selected dates
                 var availableRooms = await _context.Rooms
-                    .Where(r => !r.BookedDates.Any(b => (b.StartDate < endDate && b.EndDate > startDate)))
-                    .Include(r => r.RoomType) // Include the RoomType
-                    .ToListAsync();
+                 .Where(r => !r.BookedDates.Any(b => (b.StartDate < endDate && b.EndDate > startDate)))
+                 .Include(r => r.RoomType)
+                 .Include(r => r.Images) // Ensure images are loaded
+                 .Include(r => r.BookedDates) // Ensure booked dates are loaded
+                 .ToListAsync();
 
                 response.Data = _mapper.Map<List<FilteredRoomDTO>>(availableRooms);
                 response.Message = "Available rooms retrieved successfully.";

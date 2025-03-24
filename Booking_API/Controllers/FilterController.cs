@@ -28,10 +28,23 @@ namespace Booking_API.Controllers
 
             if (!response.Success)
             {
+              
                 return NotFound(response);
             }
+            var baseUrl = $"{Request.Scheme}://{Request.Host}/";
 
-            return Ok(response);
+            foreach (var room in response.Data)
+            {
+                if (room.imageUrls != null && room.imageUrls.Any())
+                {
+                    room.imageUrls = room.imageUrls.Select(image => new ImageDTO
+                    {
+                        roomImage = baseUrl + image.roomImage // Correctly appending base URL to the existing image URL
+                    }).ToList();
+                }
+            }
+
+            return Ok(response); 2025 - 06 - 24
         }
 
         // GET: api/filter/roomTypes

@@ -9,6 +9,8 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Booking_API.Models.DTO_s.UserProfile;
+using Booking_API.EmailHelper;
+using Booking_API.ServicesEmail;
 
 namespace Booking_API.Services
 {
@@ -17,10 +19,13 @@ namespace Booking_API.Services
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
 
-        public AuthService(ApplicationDbContext context, IConfiguration configuration)
+        private readonly IEmailService _emailService;
+
+        public AuthService(ApplicationDbContext context, IConfiguration configuration, IEmailService emailService)
         {
             _context = context;
             _configuration = configuration;
+            _emailService = emailService;
         }
         public async Task<ServiceResponse<UserProfileDTO>> GetProfile(int userId)
         {
@@ -72,39 +77,60 @@ namespace Booking_API.Services
             await _context.SaveChangesAsync();
             try
             {
+                //SMTP Email 
+
+
+                MailRequest mail = new MailRequest();
+
+                mail.ToEmail = user.Email;
+                mail.Subject = "Hello from Booking";
+                mail.Body = "hi you are registered .";
+
+                await _emailService.SendEmailAsync(mail);
+
+
+
+
+
+
+
+
+
+
+
                 // OAuth credentials
-                string clientId = "clientId";
-                string clientSecret = "clientSecret";
+                //    string clientId = "clientId";
+                //    string clientSecret = "clientSecret";
 
-                // For a web application, you should have a refresh token already obtained
-                // Use the refresh token you've previously obtained through the console app or OAuth playground
-                string refreshToken = "refreshToken";
+                //    // For a web application, you should have a refresh token already obtained
+                //    // Use the refresh token you've previously obtained through the console app or OAuth playground
+                //    string refreshToken = "refreshToken";
 
-                // Initialize the Gmail OAuth2 sender with your refresh token
-                var gmailSender = new OAuth2EmailSender(
-                    clientId: clientId,
-                    clientSecret: clientSecret,
-                    refreshToken: refreshToken,
-                    senderEmail: "senderEmail"
-                );
+                //    // Initialize the Gmail OAuth2 sender with your refresh token
+                //    var gmailSender = new OAuth2EmailSender(
+                //        clientId: clientId,
+                //        clientSecret: clientSecret,
+                //        refreshToken: refreshToken,
+                //        senderEmail: "senderEmail"
+                //    );
 
-                // Create email body with reset link
-                string emailBody = $@"
-            <html>
-            <body>
-                <h3>Wellcome</h3>
-                <p>Yuor Registration on Booking.com was successfully finished</a>.</p>
-                <p>Enjoy and good luck .  travel with our website</p>
-            </body>
-            </html>";
+                //    // Create email body with reset link
+                //    string emailBody = $@"
+                //<html>
+                //<body>
+                //    <h3>Wellcome</h3>
+                //    <p>Yuor Registration on Booking.com was successfully finished</a>.</p>
+                //    <p>Enjoy and good luck .  travel with our website</p>
+                //</body>
+                //</html>";
 
-                // Send the email
-                await gmailSender.SendEmailAsync(
-                    to: user.Email,
-                    subject: "Wellcome",
-                    body: emailBody,
-                    isBodyHtml: true
-                );
+                //    // Send the email
+                //    await gmailSender.SendEmailAsync(
+                //        to: user.Email,
+                //        subject: "Wellcome",
+                //        body: emailBody,
+                //        isBodyHtml: true
+                //    );
             }
             catch (Exception ex)
             {

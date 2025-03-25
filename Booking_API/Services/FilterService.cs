@@ -97,6 +97,8 @@ namespace Booking_API.Services
 
             return response;
         }
+
+
         // Get available rooms based on the start and end dates
         public async Task<ServiceResponse<List<FilteredRoomDTO>>> GetAvailableRooms(DateTime startDate, DateTime endDate)
         {
@@ -107,8 +109,8 @@ namespace Booking_API.Services
                 var availableRooms = await _context.Rooms
                  .Where(r => !r.BookedDates.Any(b => (b.StartDate < endDate && b.EndDate > startDate)))
                  .Include(r => r.RoomType)
-                 .Include(r => r.Images) // Ensure images are loaded
-                 .Include(r => r.BookedDates) // Ensure booked dates are loaded
+                 .Include(r => r.Images)
+                 .Include(r => r.BookedDates) 
                  .ToListAsync();
 
                 response.Data = _mapper.Map<List<FilteredRoomDTO>>(availableRooms);
@@ -170,8 +172,8 @@ namespace Booking_API.Services
             catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = ex.Message; // Store the error message.
-                                               // Optionally, log the exception: _logger.LogError(ex, "Error getting hotels by city");
+                response.Message = ex.Message; 
+                                              
             }
 
             return response;

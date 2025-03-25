@@ -29,7 +29,6 @@ namespace Booking_API.Services
             {
                 var hotels = await _dbContext.Hotels.Include(h => h.Rooms).ToListAsync();
 
-                // Construct the full image URL based on the file name or GUID
                 response.Data = hotels;
                 response.Success = true;
                 response.Message = "Hotels retrieved successfully.";
@@ -51,7 +50,7 @@ namespace Booking_API.Services
             {
                 var hotel = await _dbContext.Hotels
                     .Include(h => h.Rooms)
-                    .ThenInclude(r => r.Images) // Include images for each room
+                    .ThenInclude(r => r.Images) 
                     .FirstOrDefaultAsync(h => h.Id == id);
 
                 if (hotel == null)
@@ -137,7 +136,6 @@ namespace Booking_API.Services
             {
                 response.Success = false;
                 response.Message = "An error occurred while adding the hotel.";
-                // Log the exception (e.g., using ILogger)
             }
 
             return response;
@@ -194,7 +192,6 @@ namespace Booking_API.Services
             {
                 response.Success = false;
                 response.Message = "An error occurred while updating the hotel.";
-                // Log the exception (e.g., using ILogger)
             }
 
             return response;

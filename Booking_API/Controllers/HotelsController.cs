@@ -29,7 +29,7 @@ namespace Booking_API.Controllers
             var response = await _hotelService.AddHotel(hotelDTO, hotelImage);
 
             if (!response.Success)
-                return Conflict(response); // Hotel already exists
+                return Conflict(response); 
 
             return Ok(response);
         }
@@ -42,14 +42,13 @@ namespace Booking_API.Controllers
 
             if (response.Success)
             {
-                // You can construct the full image URL here if the image is stored locally
                 var baseUrl = $"{Request.Scheme}://{Request.Host}";
 
                 foreach (var hotel in response.Data)
                 {
                     if (!string.IsNullOrEmpty(hotel.hotelImage))
                     {
-                        // Assuming hotel.HotelImage stores the GUID or file name of the image
+                       
                         hotel.hotelImage = baseUrl + hotel.hotelImage;
                     }
                 }
@@ -69,14 +68,14 @@ namespace Booking_API.Controllers
 
             if (response.Success)
             {
-                // Construct the full image URL if the image is stored locally
+              
                 var baseUrl = $"{Request.Scheme}://{Request.Host}";
                 var baseUrlRoom = $"{Request.Scheme}://{Request.Host}/";
 
 
                 if (!string.IsNullOrEmpty(response.Data?.hotelImage))
                 {
-                    // Assuming hotelImage stores the GUID or file name of the image
+                   
                     response.Data.hotelImage = baseUrl + response.Data.hotelImage;
                 }
 
@@ -84,7 +83,7 @@ namespace Booking_API.Controllers
                 {
                     if (room.Images != null && room.Images.Any())
                     {
-                        // Convert relative paths to full URLs
+                       
                         foreach (var image in room.Images)
                         {
                             image.roomImage = baseUrlRoom + image.roomImage;
@@ -111,11 +110,10 @@ namespace Booking_API.Controllers
         [Authorize(Roles = "Admin")]
         // ✅ Update Hotel
         [HttpPut("update/{hotelId}")]
-        public async Task<ActionResult<ServiceResponse<Hotel>>> UpdateHotel(int hotelId,
-                                                                                                                                [FromForm] string name,
-                                                                                                                                [FromForm] string address,
-                                                                                                                                [FromForm] string city,
-                                                                                                                                [FromForm] IFormFile hotelImage)
+        public async Task<ActionResult<ServiceResponse<Hotel>>> UpdateHotel(int hotelId, 
+            [FromForm] string name,  [FromForm] string address,
+            [FromForm] string city,
+            [FromForm] IFormFile hotelImage)
         {
             var hotelDTO = new UpdateHotelDTO
             {

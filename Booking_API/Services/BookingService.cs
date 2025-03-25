@@ -102,7 +102,6 @@ namespace Booking_API.Services
                 await _context.SaveChangesAsync(); // Save the changes to the Room's BookedDates
 
 
-                // Map the newly created Booking entity to the DTO, including Id
                 response.Data = _mapper.Map<BookingDTO>(booking);
 
                 response.Message = "Booking created successfully.";
@@ -113,8 +112,6 @@ namespace Booking_API.Services
                     var roomfromDb = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == booking.RoomId);
                     var roomName = "";
                     var hotelName = "";
-
-
 
                     if (roomfromDb != null)
                     {
@@ -146,7 +143,7 @@ namespace Booking_API.Services
                         <tr><td><strong>Room :</strong></td><td>{roomName}</td></tr>
                         <tr><td><strong>Check-in Date:</strong></td><td>{booking.CheckInDate:yyyy-MM-dd}</td></tr>
                         <tr><td><strong>Check-out Date:</strong></td><td>{booking.CheckOutDate:yyyy-MM-dd}</td></tr>
-                        <tr><td><strong>Total Price:</strong></td><td>${booking.TotalPrice:F2}</td></tr>
+                        <tr><td><strong>Total Price:</strong></td><td>${booking.TotalPrice} GEL</td></tr>
                         <tr><td><strong>Customer Name:</strong></td><td>{booking.CustomerName}</td></tr>
                         <tr><td><strong>Customer Phone:</strong></td><td>{booking.CustomerPhone}</td></tr>
                         </table>
@@ -155,7 +152,7 @@ namespace Booking_API.Services
                         </div>
                         <div style='text-align: center; font-size: 14px; margin-top: 20px; color: #555;'>
                             Best regards,<br>
-                            <strong>Your Hotel Name</strong><br>
+                            <strong>Booking Hotels Georgia</strong><br>
                             <a href='mailto:BookignHotels@email.com'>BookignHotels@email.com</a> | <a href='tel:+1234567890'>+1234567890</a>
                         </div>
                         </div>";
@@ -192,7 +189,7 @@ namespace Booking_API.Services
                 foreach (var booking in bookings)
                 {
                     var room = await _context.Rooms
-          .Include(r => r.Images) // Include the Images navigation property
+          .Include(r => r.Images) 
           .FirstOrDefaultAsync(r => r.Id == booking.RoomId);
                     if (room != null)
                     {
@@ -326,7 +323,7 @@ namespace Booking_API.Services
                 await _context.SaveChangesAsync();
 
                 response.Success = true;
-                response.Data = true; // Indicate successful deletion
+                response.Data = true; 
                 response.Message = "Booking deleted successfully.";
             }
             catch (Exception ex)

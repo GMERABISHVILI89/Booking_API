@@ -162,7 +162,6 @@ namespace Booking_API.Services
                 _context.Rooms.Update(room);
                 await _context.SaveChangesAsync();
 
-                // Step 7: Return the updated room DTO
                 response.Data = _mapper.Map<RoomDTO>(room);
                 response.Message = "Room updated successfully.";
             }

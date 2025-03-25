@@ -32,11 +32,10 @@ namespace Booking_API.Controllers
 
             if (response.Success)
             {
-                // Use the Id from the response.Data, now that it's included in the DTO
                 return CreatedAtAction(nameof(GetBookingById), new { bookingId = response.Data.Id }, response);
             }
 
-            return Ok(response);  // Return a BadRequest if there was an error
+            return Ok(response); 
         }
 
 

@@ -39,7 +39,7 @@ namespace Booking_API.Controllers
                 {
                     room.imageUrls = room.imageUrls.Select(image => new ImageDTO
                     {
-                        roomImage = baseUrl + image.roomImage // Correctly appending base URL to the existing image URL
+                        roomImage = baseUrl + image.roomImage 
                     }).ToList();
                 }
             }

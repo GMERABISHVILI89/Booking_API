@@ -66,8 +66,7 @@ namespace Booking_API.Controllers
              
                     if (response.Data.ImageUrls != null && response.Data.ImageUrls.Any())
                     {
-                    // Convert relative paths to full URLs
-                    response.Data.ImageUrls = response.Data.ImageUrls.Select(imageUrl => baseUrl + imageUrl).ToList();
+                       response.Data.ImageUrls = response.Data.ImageUrls.Select(imageUrl => baseUrl + imageUrl).ToList();
                     }
                 return Ok(response);
             }

@@ -101,7 +101,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
  options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-
+// Added DI service For  Email
 builder.Services.AddTransient<IEmailService, EmailService>();
 
 
@@ -149,7 +149,7 @@ var app = builder.Build();
 app.UseCors("AllowAngularApp");
 
 
-// Enables serving wwwroot files
+// Enables serving wwwroot files for Uploaded Images
 app.UseStaticFiles(); 
 
 // Configure the HTTP request pipeline.

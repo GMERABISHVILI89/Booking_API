@@ -1,16 +1,16 @@
-﻿using Booking_API.Interfaces;
-using Booking_API.Models.DTO_s.Auth;
-using Booking_API.Models.Entities;
+﻿using Booking_API.EmailHelper;
+using Booking_API.Interfaces;
 using Booking_API.Models;
+using Booking_API.Models.DTO_s.Auth;
+using Booking_API.Models.DTO_s.UserProfile;
+using Booking_API.Models.Entities;
+using Booking_API.ServicesEmail;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Booking_API.Models.DTO_s.UserProfile;
-using Booking_API.EmailHelper;
-using Booking_API.ServicesEmail;
 
 namespace Booking_API.Services
 {
@@ -77,60 +77,39 @@ namespace Booking_API.Services
             await _context.SaveChangesAsync();
             try
             {
-                //SMTP Email 
-
+                // SMTP Email
 
                 MailRequest mail = new MailRequest();
 
                 mail.ToEmail = user.Email;
                 mail.Subject = "Hello from Booking";
-                mail.Body = "hi you are registered .";
+                mail.Body = $@"
+                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
+                        <div style='background-color: #4CAF50; color: white; padding: 10px; text-align: center; font-size: 20px; border-radius: 10px 10px 0 0;'>
+                            Welcome to BookingHotels!
+                        </div>
+                        <div style='padding: 20px;'>
+                            <p>Dear <strong>{user.UserName}</strong>,</p>
+                            <p>Thank you for registering on <strong>BookingHotels</strong>. Your account has been successfully created, and you can now start booking your favorite hotels with ease.</p>
+                            <p>Here are your account details:</p>
+                            <table border='0' cellpadding='5'>
+                                <tr><td><strong>Name:</strong></td><td>{user.UserName}</td></tr>
+                                <tr><td><strong>Email:</strong></td><td>{user.Email}</td></tr>
+                            </table>
+                            <p>You can now log in and explore exclusive deals and comfortable stays at the best hotels.</p>
+                            <p>If you have any questions or need assistance, feel free to contact our support team.</p>
+                            <p>We’re excited to have you on board!</p>
+                        </div>
+                        <div style='text-align: center; font-size: 14px; margin-top: 20px; color: #555;'>
+                            Best regards,<br>
+                            <strong>BookingHotels Team</strong><br>
+                            <a href='mailto:support@bookinghotels.com'>support@bookinghotels.com</a> | <a href='tel:+1234567890'>+1234567890</a>
+                        </div>
+                    </div>";
 
                 await _emailService.SendEmailAsync(mail);
 
 
-
-
-
-
-
-
-
-
-
-                // OAuth credentials
-                //    string clientId = "clientId";
-                //    string clientSecret = "clientSecret";
-
-                //    // For a web application, you should have a refresh token already obtained
-                //    // Use the refresh token you've previously obtained through the console app or OAuth playground
-                //    string refreshToken = "refreshToken";
-
-                //    // Initialize the Gmail OAuth2 sender with your refresh token
-                //    var gmailSender = new OAuth2EmailSender(
-                //        clientId: clientId,
-                //        clientSecret: clientSecret,
-                //        refreshToken: refreshToken,
-                //        senderEmail: "senderEmail"
-                //    );
-
-                //    // Create email body with reset link
-                //    string emailBody = $@"
-                //<html>
-                //<body>
-                //    <h3>Wellcome</h3>
-                //    <p>Yuor Registration on Booking.com was successfully finished</a>.</p>
-                //    <p>Enjoy and good luck .  travel with our website</p>
-                //</body>
-                //</html>";
-
-                //    // Send the email
-                //    await gmailSender.SendEmailAsync(
-                //        to: user.Email,
-                //        subject: "Wellcome",
-                //        body: emailBody,
-                //        isBodyHtml: true
-                //    );
             }
             catch (Exception ex)
             {
@@ -223,7 +202,7 @@ namespace Booking_API.Services
                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Role, user.Role),
-              
+
             };
 
             SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Secret").Value!));

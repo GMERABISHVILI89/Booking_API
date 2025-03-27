@@ -110,7 +110,7 @@ namespace Booking_API.Services
                 }
 
                 // Step 2: Ensure Room exists
-                var room = await _context.Rooms.Include(r => r.Images).FirstOrDefaultAsync(r => r.Id == roomId);
+                var room = await _context.Rooms.Include(r => r.Images).Include(h => h.Hotel).Include(t => t.RoomType).FirstOrDefaultAsync(r => r.Id == roomId);
                 if (room == null)
                 {
                     response.Success = false;
@@ -137,8 +137,20 @@ namespace Booking_API.Services
                 // Step 5: Update images if new ones are uploaded
                 if (roomImages != null && roomImages.Any())
                 {
+                    if (room.Images != null && room.Images.Any())
+                    {
+                        foreach (var image in room.Images)
+                        {
+                            var filePath = Path.Combine(_hostEnvironment.WebRootPath, "room_images", Path.GetFileName(image.roomImage)); // Get the file path.
+                            if (File.Exists(filePath))
+                            {
+                                File.Delete(filePath); // Delete the file.
+                            }
+                        }
+                    }
+
                     // Remove old images first
-                    _context.Images.RemoveRange(room.Images);
+                    _context.Images.RemoveRange(room.Images!);
                     await _context.SaveChangesAsync();
 
                     // Save new images
@@ -180,7 +192,7 @@ namespace Booking_API.Services
 
             try
             {
-                var rooms = await _context.Rooms.Include(r => r.Images).ToListAsync();
+                var rooms = await _context.Rooms.Include(r => r.Images).Include(h => h.Hotel).Include(t => t.RoomType).ToListAsync();
                 response.Data = _mapper.Map<List<RoomDTO>>(rooms);
             }
             catch (Exception ex)
@@ -198,7 +210,7 @@ namespace Booking_API.Services
 
             try
             {
-                var room = await _context.Rooms.Include(r => r.Images).FirstOrDefaultAsync(r => r.Id == roomId);
+                var room = await _context.Rooms.Include(r => r.Images).Include(h => h.Hotel).Include(t => t.RoomType).FirstOrDefaultAsync(r => r.Id == roomId);
                 if (room == null)
                 {
                     response.Success = false;
@@ -223,7 +235,7 @@ namespace Booking_API.Services
 
             try
             {
-                var rooms = await _context.Rooms.Include(r => r.Images)
+                var rooms = await _context.Rooms.Include(r => r.Images).Include(h => h.Hotel).Include(t => t.RoomType)
                     .Where(r => r.HotelId == hotelId).ToListAsync();
 
                 response.Data = _mapper.Map<List<RoomDTO>>(rooms);
@@ -251,6 +263,17 @@ namespace Booking_API.Services
                     return response;
                 }
 
+                if (room.Images != null && room.Images.Any())
+                {
+                    foreach (var image in room.Images)
+                    {
+                        var filePath = Path.Combine(_hostEnvironment.WebRootPath, "room_images", Path.GetFileName(image.roomImage)); // Get the file path.
+                        if (File.Exists(filePath))
+                        {
+                            File.Delete(filePath); // Delete the file.
+                        }
+                    }
+                }
                 // Delete images first
                 _context.Images.RemoveRange(room.Images);
 

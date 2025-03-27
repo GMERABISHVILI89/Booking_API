@@ -27,7 +27,7 @@ namespace Booking_API.Services
             var response = new ServiceResponse<List<Hotel>>();
             try
             {
-                var hotels = await _dbContext.Hotels.Include(h => h.Rooms).ToListAsync();
+                var hotels = await _dbContext.Hotels.Include(h => h.Rooms).ThenInclude(i => i.Images).ToListAsync();
 
                 response.Data = hotels;
                 response.Success = true;
@@ -50,7 +50,7 @@ namespace Booking_API.Services
             {
                 var hotel = await _dbContext.Hotels
                     .Include(h => h.Rooms)
-                    .ThenInclude(r => r.Images) 
+                    .ThenInclude(r => r.Images)
                     .FirstOrDefaultAsync(h => h.Id == id);
 
                 if (hotel == null)
@@ -209,6 +209,14 @@ namespace Booking_API.Services
                     response.Success = false;
                     response.Message = "Hotel not found.";
                     return response;
+                }
+                if (!string.IsNullOrEmpty(hotel.hotelImage))
+                {
+                    var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", hotel.hotelImage.TrimStart('/'));
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
                 }
 
                 _dbContext.Hotels.Remove(hotel);
